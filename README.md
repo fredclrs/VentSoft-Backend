@@ -1,6 +1,7 @@
-# 🧠 Prueba Evoltis
+# 🧠 VentSoft
 
-Este proyecto es una aplicación .NET 8 Clean Arquiture que implementa operaciones CRUD para la gestión de usuarios (alta, baja, modificación y búsqueda).  
+Aplicación .NET 8 en **Clean Architecture** para la gestión de compra-venta e inventario de negocios pequeños (clientes, proveedores, artículos, compras, ventas, cobros y pagos).
+
 Incluye pruebas unitarias con **xUnit**, **Moq** y **AutoFixture**.
 
 ---
@@ -9,13 +10,13 @@ Incluye pruebas unitarias con **xUnit**, **Moq** y **AutoFixture**.
 
 - .NET 8
 - C#
-- MediatR
+- MediatR (CQRS)
 - AutoMapper
 - FluentValidation
 - xUnit
 - Moq
 - AutoFixture
-- MySQL
+- SQL Server (EF Core, Database-First sobre `ScriptVentSoft... / SQLQueryVentSoft.sql`)
 
 ---
 
@@ -26,7 +27,7 @@ Asegúrate de tener instalado:
 - [.NET SDK 8.0](https://dotnet.microsoft.com/en-us/download)
 - Visual Studio 2022
 - Git
-- MySQL Server
+- SQL Server (LocalDB, Express o full)
 
 ---
 
@@ -34,54 +35,38 @@ Asegúrate de tener instalado:
 
 1. Clonar el repositorio:
    ```bash
-   git clone https://github.com/fredclrs/PruebaEvoltis.git
+   git clone https://github.com/fredclrs/VentSoft.git
+   ```
+
+2. Crear la base de datos ejecutando el script `SQLQueryVentSoft.sql` contra tu instancia de SQL Server (crea la base `VentSoft` y todas sus tablas: Cliente, Usuario, Proveedor, FormaDePago, Familia, Caracteristica, Promocion, Articulo, Compra, DetalleCompra, Venta, DetalleVenta, Cobro, Pago).
+
+3. Configurar la cadena de conexión en `src/WebVentSoft.API/appsettings.json`:
+   ```json
+   "ConnectionStrings": {
+     "DefaultConnection": "Server=localhost\\SQLEXPRESS;Database=VentSoft;Trusted_Connection=True;TrustServerCertificate=True;"
+   }
+   ```
+
+4. Ejecutar la API (`dotnet run --project src/WebVentSoft.API`) y abrir Swagger.
 
 ---
-  
+
 ## Los tests cubren los siguientes handlers:
 
-AddUserCommandHandler
-
-DeleteUserCommandHandler
-
-UpdateUserCommandHandler
-
-SearchUserQueryHandler
+- AddUserCommandHandler
+- DeleteUserCommandHandler
+- UpdateUserCommandHandler
+- SearchUserQueryHandler
 
 Cada prueba valida el comportamiento en casos exitosos y de error.
 
 ---
 
+## Base de datos (Database-First)
 
-Base de datos (Code-First)
+La base de datos ya existe en SQL Server y las entidades del proyecto están alineadas a ese esquema (no se usan migraciones de EF Core para crearla; el script `SQLQueryVentSoft.sql` es la fuente de verdad). Si el esquema cambia, actualizar primero la base con SQL y luego reflejar el cambio en `Domain/Entities` y `Infrastructure/Persistence/Configurations`.
 
-La aplicación utiliza MySQL como base de datos.
-Se sigue el enfoque Code-First, es decir, las tablas se generan a partir de las entidades definidas en el proyecto .NET.
-
-## Configurar la base de datos
-
-1.- Crear la base de datos vacía en MySQL:
-
- R.- CREATE DATABASE PruebaEvoltis;
-
-2.- Configurar la cadena de conexión en appsettings.json
-R.-
-"ConnectionStrings": {
-    "DefaultConnection": "server=localhost;user=root;password=TU_PASSWORD;database=PruebaEvoltis"
-}
-
-3.- Generar las tablas desde las entidades
-
-# Crear la primera migración (si no existe)
-R.- dotnet ef migrations add InitialCreat
-
-# Aplicar la migración a la base de datos
-R.- dotnet ef database update
-
-Esto creará automáticamente todas las tablas correspondientes a tus entidades (Usuarios, Domicilios.).
-
------
-
+---
 
 AUTOR
 Fredy Claro Rojas

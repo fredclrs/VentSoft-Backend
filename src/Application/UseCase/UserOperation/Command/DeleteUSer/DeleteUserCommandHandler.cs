@@ -1,5 +1,4 @@
 ﻿using Application.Interfaces;
-using Application.UseCase.UserOperation.Command.AddUser;
 using Domain.Dtos;
 using MediatR;
 using Microsoft.Extensions.Logging;

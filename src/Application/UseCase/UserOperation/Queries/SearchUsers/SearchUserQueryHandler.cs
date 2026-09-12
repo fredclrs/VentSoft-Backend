@@ -1,4 +1,4 @@
-﻿
+
 using Application.Interfaces;
 using Domain.Dtos;
 using MediatR;
@@ -8,8 +8,8 @@ namespace Application.UseCase.UserOperation.Queries.SearchUsers
 {
     public class SearchUserQueryHandler : IRequestHandler<SearchUserQuery, BaseResponse<List<UsuarioDto>>>
     {
-        private IUsuarioQueryService _usuarioQueryService;
-        private ILogger<SearchUserQueryHandler> _logger;
+        private readonly IUsuarioQueryService _usuarioQueryService;
+        private readonly ILogger<SearchUserQueryHandler> _logger;
         public SearchUserQueryHandler(IUsuarioQueryService usuarioQueryService, ILogger<SearchUserQueryHandler> logger) {
             _usuarioQueryService = usuarioQueryService;
             _logger = logger;
@@ -18,7 +18,7 @@ namespace Application.UseCase.UserOperation.Queries.SearchUsers
         {
             try
             {
-                var serachUsuario = await _usuarioQueryService.SearchUsersAsync(request.Nombre, request.Ciudad, request.Provincia);
+                var serachUsuario = await _usuarioQueryService.SearchUsersAsync(request.Nombre, request.DocumentoIdentidad, request.Zona);
 
                 return BaseResponse<List<UsuarioDto>>.SuccessResponse(
                     serachUsuario,

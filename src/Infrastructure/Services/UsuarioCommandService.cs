@@ -1,4 +1,3 @@
-﻿
 using Application.Interfaces;
 using AutoMapper;
 using Domain.Dtos;
@@ -8,21 +7,30 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Services
 {
-    internal class UsuarioCommandService : IUsuarioCommandService
+    public class UsuarioCommandService : IUsuarioCommandService
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IPasswordHasher _passwordHasher;
 
-        public UsuarioCommandService(AppDbContext context, IMapper mapper)
+        public UsuarioCommandService(AppDbContext context, IMapper mapper, IPasswordHasher passwordHasher)
         {
             _context = context;
             _mapper = mapper;
+            _passwordHasher = passwordHasher;
         }
 
         public async Task<UsuarioDto> AddUserAsync(UsuarioDto usuarioDto)
         {
             var usuario = _mapper.Map<Usuario>(usuarioDto);
-            usuario.FechaCreacion = DateTime.Now;
+
+            var hash = _passwordHasher.Hash(usuarioDto.Contrasena ?? string.Empty);
+            usuario.Contrasena = hash;
+            // Columna heredada de la BD, redundante con Contrasena (ver notas del proyecto).
+            usuario.ConfirmarContrasena = hash;
+
+            usuario.Estado = "AC";
+            usuario.FechaRegistro = DateTime.Now;
 
             _context.Usuarios.Add(usuario);
             await _context.SaveChangesAsync();
@@ -32,45 +40,32 @@ namespace Infrastructure.Services
 
         public async Task<UsuarioDto?> UpdateUserAsync(int id, UsuarioDto usuarioDto)
         {
-            var usuario = await _context.Usuarios
-                .Include(u => u.Domicilios)
-                .FirstOrDefaultAsync(u => u.ID == id);
-
+            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Id == id);
             if (usuario == null)
                 return null;
 
-            // Actualiza datos principales
             usuario.Nombre = usuarioDto.Nombre;
-            usuario.Email = usuarioDto.Email;
+            usuario.DocumentoIdentidad = usuarioDto.DocumentoIdentidad;
+            usuario.Nit = usuarioDto.Nit;
+            usuario.Direccion = usuarioDto.Direccion;
+            usuario.Zona = usuarioDto.Zona;
+            usuario.Telefono = usuarioDto.Telefono;
+            usuario.Correo = usuarioDto.Correo;
+            usuario.Nota = usuarioDto.Nota;
+            usuario.NombreUsuario = usuarioDto.NombreUsuario;
+            usuario.EsAdministrador = usuarioDto.EsAdministrador;
+            usuario.Permisos = usuarioDto.Permisos;
 
-            // Actualiza/agrega domicilios
-            foreach (var domicilioDto in usuarioDto.Domicilios)
+            if (!string.IsNullOrWhiteSpace(usuarioDto.Contrasena))
             {
-                // Validación de campos requeridos antes de guardar
-                if (string.IsNullOrWhiteSpace(domicilioDto.Calle) ||
-                    string.IsNullOrWhiteSpace(domicilioDto.Ciudad) ||
-                    string.IsNullOrWhiteSpace(domicilioDto.Provincia))
-                {
-                    throw new InvalidOperationException("Todos los campos del domicilio son requeridos.");
-                }
+                var hash = _passwordHasher.Hash(usuarioDto.Contrasena);
+                usuario.Contrasena = hash;
+                usuario.ConfirmarContrasena = hash;
+            }
 
-                var domicilioExistente = usuario.Domicilios
-                    .FirstOrDefault(d => d.ID == domicilioDto.Id);
-
-                if (domicilioExistente != null)
-                {
-                    // Actualizar domicilio existente
-                    domicilioExistente.Calle = domicilioDto.Calle;
-                    domicilioExistente.Ciudad = domicilioDto.Ciudad;
-                    domicilioExistente.Provincia = domicilioDto.Provincia;
-                }
-                else
-                {
-                    // Agregar nuevo domicilio
-                    var nuevoDomicilio = _mapper.Map<Domicilio>(domicilioDto);
-                    usuario.Domicilios.Add(nuevoDomicilio);
-                }
-            }            
+            // TODO: reemplazar "system" por el usuario autenticado real cuando exista login.
+            usuario.UserActualizado = "system";
+            usuario.FechaActualizado = DateTime.Now;
 
             await _context.SaveChangesAsync();
 
@@ -79,15 +74,15 @@ namespace Infrastructure.Services
 
         public async Task<UsuarioDto?> DeleteUserAsync(int id)
         {
-            var usuario = await _context.Usuarios
-                .Include(u => u.Domicilios)
-                .FirstOrDefaultAsync(u => u.ID == id);
-
+            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Id == id);
             if (usuario == null)
                 return null;
 
-            _context.Domicilios.RemoveRange(usuario.Domicilios);
-            _context.Usuarios.Remove(usuario);
+            // Baja lógica, no física: el usuario puede tener Compras/Ventas/Cobros/Pagos asociados.
+            usuario.Estado = "IN";
+            usuario.UserBaja = "system"; // TODO: usuario autenticado real
+            usuario.FechaBaja = DateTime.Now;
+
             await _context.SaveChangesAsync();
 
             return _mapper.Map<UsuarioDto>(usuario);

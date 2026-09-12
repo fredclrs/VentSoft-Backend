@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 
@@ -8,9 +8,8 @@ namespace Infrastructure.Persistence
     {
         public AppDbContext CreateDbContext(string[] args)
         {
-            string projectPath = Path.Combine(Directory.GetCurrentDirectory(), "..\\WebEvoltis.API");
+            string projectPath = Path.Combine(Directory.GetCurrentDirectory(), "..\\WebVentSoft.API");
 
-            // Construir la configuración
             IConfigurationRoot configuration = new ConfigurationBuilder()
                 .SetBasePath(projectPath)
                 .AddJsonFile("appsettings.json")
@@ -18,13 +17,9 @@ namespace Infrastructure.Persistence
 
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
 
-            // Obtener cadena de conexión desde appsettings.json
             var connectionString = configuration.GetConnectionString("DefaultConnection");
 
-            optionsBuilder.UseMySql(
-                connectionString,
-                new MySqlServerVersion(new Version(8, 0, 33))
-            );
+            optionsBuilder.UseSqlServer(connectionString);
 
             return new AppDbContext(optionsBuilder.Options);
         }

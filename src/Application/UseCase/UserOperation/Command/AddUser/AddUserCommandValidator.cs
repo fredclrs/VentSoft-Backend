@@ -1,4 +1,4 @@
-﻿using Application.Validators;
+using Application.Validators;
 using FluentValidation;
 
 namespace Application.UseCase.UserOperation.Command.AddUser
@@ -10,6 +10,10 @@ namespace Application.UseCase.UserOperation.Command.AddUser
             RuleFor(x => x.UsuarioDto)
                 .NotNull().WithMessage("El usuario es obligatorio.")
                 .SetValidator(new UsuarioDtoValidator());
+
+            RuleFor(x => x.UsuarioDto.Contrasena)
+                .NotEmpty().WithMessage("La contraseña es obligatoria.")
+                .When(x => x.UsuarioDto != null);
         }
     }
 }
