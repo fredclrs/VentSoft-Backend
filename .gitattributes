@@ -4,6 +4,14 @@
 * text=auto
 
 ###############################################################################
+# Los scripts de shell SIEMPRE con salto de línea LF, sin importar el SO del
+# checkout. En Windows con autocrlf=true se convertirían a CRLF, y bash (dentro
+# del contenedor Linux de db-init) no tolera el \r — el script fallaría al
+# arrancar.
+###############################################################################
+*.sh text eol=lf
+
+###############################################################################
 # Set default behavior for command prompt diff.
 #
 # This is need for earlier builds of msysgit that does not have it on by

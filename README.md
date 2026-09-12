@@ -35,7 +35,7 @@ Asegúrate de tener instalado:
 
 1. Clonar el repositorio:
    ```bash
-   git clone https://github.com/fredclrs/VentSoft.git
+   git clone https://github.com/fredclrs/VentSoft-Backend.git
    ```
 
 2. Crear la base de datos ejecutando el script `SQLQueryVentSoft.sql` contra tu instancia de SQL Server (crea la base `VentSoft` y todas sus tablas: Cliente, Usuario, Proveedor, FormaDePago, Familia, Caracteristica, Promocion, Articulo, Compra, DetalleCompra, Venta, DetalleVenta, Cobro, Pago).
@@ -48,6 +48,35 @@ Asegúrate de tener instalado:
    ```
 
 4. Ejecutar la API (`dotnet run --project src/WebVentSoft.API`) y abrir Swagger.
+
+---
+
+## 🐳 Levantar todo con Docker (backend + frontend + base de datos)
+
+Alternativa a los pasos de arriba: `docker-compose.yml` levanta los 3 servicios de una
+sola vez, sin instalar nada más que Docker.
+
+Requiere tener el repo [VentSoft-FrontEnd](https://github.com/fredclrs/VentSoft-FrontEnd)
+clonado **justo al lado** de este (mismo directorio padre, no uno adentro del otro):
+
+```
+algún-directorio/
+  ├── VentSoft-Backend/   ← este repo, acá corrés los comandos
+  └── VentSoft-FrontEnd/
+```
+
+```bash
+cp .env.example .env   # completá los 3 valores (contraseñas + clave JWT)
+docker compose up -d --build
+```
+
+- Frontend: http://localhost:8080
+- API/Swagger: http://localhost:5187/swagger
+- SQL Server: `localhost,1433`
+
+La primera vez, el servicio `db-init` corre `SQLQueryVentSoft.sql` solo y crea el
+usuario de base dedicado para la API — no hay que tocar SSMS a mano. El admin
+inicial (`admin` / `admin123`) lo crea la propia API si la tabla `Usuario` está vacía.
 
 ---
 

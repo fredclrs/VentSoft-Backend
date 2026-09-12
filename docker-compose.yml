@@ -1,0 +1,105 @@
+# Levanta VentSoft completo: base de datos, API y frontend.
+#
+# Requisito: este archivo vive en la raíz del repo VentSoft-Backend, y el servicio
+# "frontend" construye desde "../FVentSoft" — o sea, hace falta tener el repo
+# VentSoft-FrontEnd clonado JUSTO AL LADO de este (mismo directorio padre), no adentro:
+#   algún-directorio/
+#     ├── VentSoft-Backend/   (este repo — acá corrés docker compose)
+#     └── VentSoft-FrontEnd/
+#
+# Uso:
+#   1. Copiá .env.example a .env (en esta misma carpeta) y completá los 3 valores.
+#   2. docker compose up -d --build
+#   3. Frontend:  http://localhost:8080
+#      API/Swagger: http://localhost:5187/swagger
+#      SQL Server: localhost,1433 (para conectarte con SSMS/Azure Data Studio)
+#
+# La primera vez que levanta, "db-init" crea la base desde SQLQueryVentSoft.sql y el
+# usuario dedicado para la API. Los datos quedan en el volumen "sqlserver-data": un
+# "docker compose down" (sin -v) no los borra; un "docker compose down -v" sí.
+#
+# Usuario admin inicial (lo crea la propia API si la tabla Usuario está vacía):
+#   usuario: admin   contraseña: admin123   — cambiarla apenas se entra.
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: ventsoft-db
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q 'SELECT 1' || /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -Q 'SELECT 1'"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 20s
+    networks: [ventsoft]
+
+  # Contenedor de un solo uso: corre SQLQueryVentSoft.sql (si hace falta) y crea el
+  # login de la API, después termina. "backend" espera a que este termine OK antes
+  # de arrancar.
+  db-init:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: ventsoft-db-init
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    environment:
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
+      APP_DB_USER: ${APP_DB_USER}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD}
+    entrypoint: ["/bin/bash", "/scripts/init-db.sh"]
+    volumes:
+      - ./SQLQueryVentSoft.sql:/scripts/SQLQueryVentSoft.sql:ro
+      - ./docker/db-init/init-db.sh:/scripts/init-db.sh:ro
+    networks: [ventsoft]
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ventsoft-api
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+    environment:
+      # "Development" acá (no "Production") a propósito: solo habilita Swagger y
+      # desactiva el redirect automático a HTTPS, que no tiene sentido dentro de la
+      # red interna de Docker (nginx es quien atiende al navegador en el 8080; si
+      # esto algún día se expone directo a internet, ahí sí conviene TLS de verdad
+      # delante — nginx con certificado, o un balanceador — y recién entonces pasar
+      # esto a "Production").
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=VentSoft;User Id=${APP_DB_USER};Password=${APP_DB_PASSWORD};TrustServerCertificate=True;"
+      Jwt__Key: ${JWT_KEY}
+      Jwt__Issuer: VentSoft.API
+      Jwt__Audience: VentSoft.Front
+      Jwt__ExpireMinutes: "480"
+      Cors__AllowedOrigins__0: "http://localhost:8080"
+    ports:
+      - "5187:8080"
+    networks: [ventsoft]
+
+  frontend:
+    build:
+      context: ../FVentSoft
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: /api
+    container_name: ventsoft-front
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+    networks: [ventsoft]
+
+networks:
+  ventsoft:
+
+volumes:
+  sqlserver-data:
