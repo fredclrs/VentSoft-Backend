@@ -30,6 +30,13 @@ namespace Infrastructure.Persistence.Configurations
                 .WithMany(x => x.Ventas)
                 .HasForeignKey(x => x.IdPromocion)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            // Forma de pago opcional (null en ventas 100% a crédito o de antes de este campo):
+            // si se borra la forma de pago, la venta queda intacta, solo pierde esa clasificación.
+            builder.HasOne(x => x.FormaDePago)
+                .WithMany()
+                .HasForeignKey(x => x.IdFormaDePago)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

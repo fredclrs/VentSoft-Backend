@@ -101,6 +101,7 @@ namespace Application.UseCase.VentaOperation.Command.RegistrarVenta
                     IdCliente = dto.IdCliente,
                     IdUsuario = dto.IdUsuario,
                     IdPromocion = dto.IdPromocion,
+                    IdFormaDePago = dto.IdFormaDePago,
                     Estado = "AC",
                     FechaRegistro = DateTime.Now,
                     UserRegistro = "system" // TODO: usuario autenticado real

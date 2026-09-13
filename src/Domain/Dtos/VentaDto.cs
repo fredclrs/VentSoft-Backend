@@ -23,6 +23,7 @@ namespace Domain.Dtos
         public int IdCliente { get; set; }
         public int IdUsuario { get; set; }
         public int? IdPromocion { get; set; }
+        public int? IdFormaDePago { get; set; }
 
         public List<DetalleVentaDto> Detalles { get; set; } = new();
     }

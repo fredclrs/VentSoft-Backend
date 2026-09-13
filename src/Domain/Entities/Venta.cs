@@ -23,9 +23,17 @@ namespace Domain.Entities
         /// <summary>Opcional: no toda venta tiene una promoción aplicada.</summary>
         public int? IdPromocion { get; set; }
 
+        /// <summary>Cómo se cobró lo de Pagado (Efectivo, Tarjeta, QR, etc. — catálogo
+        /// configurable por negocio en FormaDePago). Opcional: null en ventas 100% a crédito
+        /// (Pagado = 0, no hay ningún cobro que clasificar) o en ventas viejas de antes de este
+        /// campo. El reporte "Ventas del día" la usa para separar el efectivo real de caja del
+        /// resto (tarjeta/QR/transferencia).</summary>
+        public int? IdFormaDePago { get; set; }
+
         public Cliente Cliente { get; set; } = null!;
         public Usuario Usuario { get; set; } = null!;
         public Promocion? Promocion { get; set; }
+        public FormaDePago? FormaDePago { get; set; }
 
         public ICollection<DetalleVenta> Detalles { get; set; } = new List<DetalleVenta>();
         public ICollection<DevolucionVenta> Devoluciones { get; set; } = new List<DevolucionVenta>();

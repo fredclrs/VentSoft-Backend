@@ -153,6 +153,12 @@ go
 -- go
 -- alter table ConfiguracionEmpresa add RedondearPreciosEnteros bit default ((0)) not null;
 -- go
+-- alter table FormaDePago add EsEfectivo bit default ((0)) not null;
+-- go
+-- alter table Venta add IdFormaDePago int null;
+-- go
+-- alter table Venta add constraint FK_Venta_FormaDePago foreign key (IdFormaDePago) references FormaDePago (Id) on delete set null;
+-- go
 
 create table DetalleCambioVenta (
     Id int identity(1,1) primary key not null,
@@ -266,6 +272,7 @@ go
 create table FormaDePago (
     Id int identity(1,1) primary key not null,
     FormaPago varchar(30) not null,
+    EsEfectivo bit default ((0)) not null,
     Estado char(2) not null,
     UserRegistro varchar(30) null,
     UserActualizado varchar(30) null,
@@ -443,7 +450,8 @@ create table Venta (
     IdCliente int not null,
     IdUsuario int not null,
     IdPromocion int null,
-    MontoSaldoAFavorAplicado float default ((0)) not null
+    MontoSaldoAFavorAplicado float default ((0)) not null,
+    IdFormaDePago int null
 );
 go
 
@@ -482,6 +490,8 @@ go
 alter table Venta add constraint FK__Venta__IdPromoci__37A5467C foreign key (IdPromocion) references Promocion (Id) on delete set null;
 go
 alter table Venta add constraint FK__Venta__IdUsuario__36B12243 foreign key (IdUsuario) references Usuario (Id) on delete cascade on update cascade;
+go
+alter table Venta add constraint FK_Venta_FormaDePago foreign key (IdFormaDePago) references FormaDePago (Id) on delete set null;
 go
 alter table Compra add constraint FK_Compra_Usuario foreign key (IdUsuario) references Usuario (Id);
 go

@@ -15,6 +15,9 @@ namespace Infrastructure.Persistence.Configurations
                 .HasColumnName("FormaPago")
                 .HasMaxLength(30)
                 .IsRequired();
+
+            builder.Property(x => x.EsEfectivo)
+                .IsRequired();
         }
     }
 }

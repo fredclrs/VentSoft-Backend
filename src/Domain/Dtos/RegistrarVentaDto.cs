@@ -25,6 +25,11 @@ namespace Domain.Dtos
         /// aplica como pago de esta venta. 0 si no tiene o no se usa.</summary>
         public double MontoSaldoAFavorAplicado { get; set; }
 
+        /// <summary>Cómo se cobró lo de Pagado (Efectivo, Tarjeta, QR, etc.). Opcional — no tiene
+        /// sentido pedirlo si Pagado es 0 (venta 100% a crédito, no hay ningún cobro que
+        /// clasificar).</summary>
+        public int? IdFormaDePago { get; set; }
+
         public List<RegistrarDetalleVentaDto> Detalles { get; set; } = new();
     }
 }
