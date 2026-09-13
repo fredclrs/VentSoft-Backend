@@ -8,11 +8,18 @@
 #     └── VentSoft-FrontEnd/
 #
 # Uso:
-#   1. Copiá .env.example a .env (en esta misma carpeta) y completá los 3 valores.
+#   1. Copiá .env.example a .env (en esta misma carpeta) y completá los 4 valores
+#      (incluido SITE_DOMAIN — ver abajo cómo conseguirlo gratis sin dominio propio).
 #   2. docker compose up -d --build
-#   3. Frontend:  http://localhost:8080
-#      API/Swagger: http://localhost:5187/swagger
+#   3. Frontend:  https://<SITE_DOMAIN>          (certificado real, automático, gratis)
+#      API/Swagger: http://localhost:5187/swagger (solo accesible en el propio servidor
+#      o abriendo el puerto 5187, no pasa por HTTPS)
 #      SQL Server: localhost,1433 (para conectarte con SSMS/Azure Data Studio)
+#
+# SITE_DOMAIN sin comprar un dominio: si tu servidor tiene la IP pública 1.2.3.4, usá
+# "1-2-3-4.sslip.io" (con guiones en vez de puntos) — es un servicio gratis que resuelve
+# solo a esa IP, y alcanza para que Let's Encrypt te dé un certificado real. Caddy (el
+# servicio de acá abajo) pide y renueva ese certificado automáticamente, sin tocar nada.
 #
 # La primera vez que levanta, "db-init" crea la base desde SQLQueryVentSoft.sql y el
 # usuario dedicado para la API. Los datos quedan en el volumen "sqlserver-data": un
@@ -80,7 +87,7 @@ services:
       Jwt__Issuer: VentSoft.API
       Jwt__Audience: VentSoft.Front
       Jwt__ExpireMinutes: "480"
-      Cors__AllowedOrigins__0: "http://localhost:8080"
+      Cors__AllowedOrigins__0: "https://${SITE_DOMAIN}"
     ports:
       - "5187:8080"
     networks: [ventsoft]
@@ -94,8 +101,28 @@ services:
     container_name: ventsoft-front
     depends_on:
       - backend
+    networks: [ventsoft]
+    # Sin "ports" a propósito: ya no se accede directo por 8080 — todo el tráfico
+    # público entra por Caddy (HTTPS), que lo reenvía acá adentro por la red interna
+    # de Docker. Si necesitás entrar directo sin pasar por Caddy (para debuggear),
+    # agregá "ports: [\"8080:80\"]" temporalmente.
+
+  # Único punto de entrada público: HTTPS de verdad (Let's Encrypt), automático. Ver
+  # el comentario de SITE_DOMAIN arriba del todo del archivo.
+  caddy:
+    image: caddy:2-alpine
+    container_name: ventsoft-caddy
+    depends_on:
+      - frontend
+    environment:
+      SITE_DOMAIN: ${SITE_DOMAIN}
     ports:
-      - "8080:80"
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
     networks: [ventsoft]
 
 networks:
@@ -103,3 +130,5 @@ networks:
 
 volumes:
   sqlserver-data:
+  caddy-data:
+  caddy-config:

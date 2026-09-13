@@ -1,0 +1,6 @@
+# Caddy pide y renueva solo el certificado HTTPS (Let's Encrypt) para el dominio que
+# le digas en SITE_DOMAIN (variable de entorno, definida en .env) — no hay nada que
+# tocar acá. Ver .env.example para el formato del dominio "gratis" con sslip.io.
+{$SITE_DOMAIN} {
+	reverse_proxy frontend:80
+}

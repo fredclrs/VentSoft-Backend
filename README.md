@@ -66,12 +66,14 @@ algún-directorio/
 ```
 
 ```bash
-cp .env.example .env   # completá los 3 valores (contraseñas + clave JWT)
+cp .env.example .env   # completá los 4 valores (contraseñas, clave JWT y SITE_DOMAIN)
 docker compose up -d --build
 ```
 
-- Frontend: http://localhost:8080
-- API/Swagger: http://localhost:5187/swagger
+- Frontend: `https://<SITE_DOMAIN>` — HTTPS real (Let's Encrypt), automático vía Caddy.
+  Sin dominio propio, usá `<tu-ip-con-guiones>.sslip.io` como `SITE_DOMAIN` (gratis, sin
+  registro — ver comentario en `.env.example`).
+- API/Swagger: http://localhost:5187/swagger (solo desde el propio servidor)
 - SQL Server: `localhost,1433`
 
 La primera vez, el servicio `db-init` corre `SQLQueryVentSoft.sql` solo y crea el
