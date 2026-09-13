@@ -159,6 +159,27 @@ go
 -- go
 -- alter table Venta add constraint FK_Venta_FormaDePago foreign key (IdFormaDePago) references FormaDePago (Id) on delete set null;
 -- go
+-- create table AjusteStock (
+--     Id int identity(1,1) primary key not null,
+--     Fecha date not null,
+--     Tipo varchar(10) not null,
+--     Cantidad int not null,
+--     Motivo varchar(200) not null,
+--     IdArticulo int not null,
+--     IdUsuario int not null,
+--     Estado char(2) not null,
+--     UserRegistro varchar(30) null,
+--     UserActualizado varchar(30) null,
+--     UserBaja varchar(30) null,
+--     FechaRegistro datetime null,
+--     FechaActualizado datetime null,
+--     FechaBaja datetime null
+-- );
+-- go
+-- alter table AjusteStock add constraint FK_AjusteStock_Articulo foreign key (IdArticulo) references Articulo (Id);
+-- go
+-- alter table AjusteStock add constraint FK_AjusteStock_Usuario foreign key (IdUsuario) references Usuario (Id);
+-- go
 
 create table DetalleCambioVenta (
     Id int identity(1,1) primary key not null,
@@ -310,6 +331,24 @@ create table MovimientoCaja (
     Tipo varchar(10) not null,
     Monto float not null,
     Motivo varchar(200) not null,
+    IdUsuario int not null,
+    Estado char(2) not null,
+    UserRegistro varchar(30) null,
+    UserActualizado varchar(30) null,
+    UserBaja varchar(30) null,
+    FechaRegistro datetime null,
+    FechaActualizado datetime null,
+    FechaBaja datetime null
+);
+go
+
+create table AjusteStock (
+    Id int identity(1,1) primary key not null,
+    Fecha date not null,
+    Tipo varchar(10) not null,
+    Cantidad int not null,
+    Motivo varchar(200) not null,
+    IdArticulo int not null,
     IdUsuario int not null,
     Estado char(2) not null,
     UserRegistro varchar(30) null,
@@ -528,6 +567,10 @@ go
 alter table Liquidacion add constraint FK_Liquidacion_Usuario foreign key (IdUsuario) references Usuario (Id);
 go
 alter table MovimientoCaja add constraint FK_MovimientoCaja_Usuario foreign key (IdUsuario) references Usuario (Id);
+go
+alter table AjusteStock add constraint FK_AjusteStock_Articulo foreign key (IdArticulo) references Articulo (Id);
+go
+alter table AjusteStock add constraint FK_AjusteStock_Usuario foreign key (IdUsuario) references Usuario (Id);
 go
 
 -- No es SQL, es un comando de Package Manager Console (Visual Studio) para

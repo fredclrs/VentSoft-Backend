@@ -2,10 +2,10 @@
 namespace Application.Interfaces
 {
     /// <summary>
-    /// La BD actual no tiene una tabla de movimientos de inventario: el stock
-    /// disponible se calcula como lo comprado (DetalleCompra) menos lo vendido
-    /// (DetalleVenta) para un mismo Articulo. Ver notas del proyecto si se
-    /// necesita un histórico real de movimientos (entradas/salidas/ajustes).
+    /// No hay una única tabla de "movimientos de inventario": el stock disponible se calcula
+    /// sumando/restando de varias tablas para un mismo Articulo — lo comprado (DetalleCompra),
+    /// lo vendido (DetalleVenta), lo devuelto/entregado en cambio (Devolucion) y las correcciones
+    /// manuales (AjusteStock: rotura, vencimiento, robo, conteo real distinto).
     /// </summary>
     public interface IStockService
     {

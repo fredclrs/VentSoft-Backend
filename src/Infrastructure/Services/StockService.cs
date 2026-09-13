@@ -33,7 +33,17 @@ namespace Infrastructure.Services
                 .Where(x => x.IdArticulo == idArticulo)
                 .SumAsync(x => x.Cantidad);
 
-            return comprado - vendido + devuelto - entregadoEnCambio;
+            // Correcciones manuales (rotura, vencimiento, robo, conteo real distinto) — ver
+            // AjusteStock. Solo las activas: una dada de baja (cargada por error) no cuenta.
+            var ajustadoEntrada = await _context.AjustesStock
+                .Where(x => x.IdArticulo == idArticulo && x.Estado == "AC" && x.Tipo == "ENTRADA")
+                .SumAsync(x => x.Cantidad);
+
+            var ajustadoSalida = await _context.AjustesStock
+                .Where(x => x.IdArticulo == idArticulo && x.Estado == "AC" && x.Tipo == "SALIDA")
+                .SumAsync(x => x.Cantidad);
+
+            return comprado - vendido + devuelto - entregadoEnCambio + ajustadoEntrada - ajustadoSalida;
         }
 
         public async Task<bool> ValidarStockAsync(int idArticulo, int cantidad)
@@ -65,16 +75,31 @@ namespace Infrastructure.Services
                 .Select(g => new { g.Key, Cantidad = g.Sum(x => x.Cantidad) })
                 .ToDictionaryAsync(x => x.Key, x => x.Cantidad);
 
+            var ajustadoEntrada = await _context.AjustesStock
+                .Where(x => x.Estado == "AC" && x.Tipo == "ENTRADA")
+                .GroupBy(x => x.IdArticulo)
+                .Select(g => new { g.Key, Cantidad = g.Sum(x => x.Cantidad) })
+                .ToDictionaryAsync(x => x.Key, x => x.Cantidad);
+
+            var ajustadoSalida = await _context.AjustesStock
+                .Where(x => x.Estado == "AC" && x.Tipo == "SALIDA")
+                .GroupBy(x => x.IdArticulo)
+                .Select(g => new { g.Key, Cantidad = g.Sum(x => x.Cantidad) })
+                .ToDictionaryAsync(x => x.Key, x => x.Cantidad);
+
             var idsArticulos = comprado.Keys
                 .Union(vendido.Keys)
                 .Union(devuelto.Keys)
-                .Union(entregadoEnCambio.Keys);
+                .Union(entregadoEnCambio.Keys)
+                .Union(ajustadoEntrada.Keys)
+                .Union(ajustadoSalida.Keys);
 
             var resultado = new Dictionary<int, int>();
             foreach (var id in idsArticulos)
             {
                 resultado[id] = comprado.GetValueOrDefault(id) - vendido.GetValueOrDefault(id)
-                    + devuelto.GetValueOrDefault(id) - entregadoEnCambio.GetValueOrDefault(id);
+                    + devuelto.GetValueOrDefault(id) - entregadoEnCambio.GetValueOrDefault(id)
+                    + ajustadoEntrada.GetValueOrDefault(id) - ajustadoSalida.GetValueOrDefault(id);
             }
 
             return resultado;
