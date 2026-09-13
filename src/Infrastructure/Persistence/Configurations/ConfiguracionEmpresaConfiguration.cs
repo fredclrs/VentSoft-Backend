@@ -24,6 +24,9 @@ namespace Infrastructure.Persistence.Configurations
 
             builder.Property(x => x.PermiteCompraACredito)
                 .IsRequired();
+
+            builder.Property(x => x.RedondearPreciosEnteros)
+                .IsRequired();
         }
     }
 }

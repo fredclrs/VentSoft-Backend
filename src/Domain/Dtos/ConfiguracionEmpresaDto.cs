@@ -7,6 +7,7 @@ namespace Domain.Dtos
         public string Moneda { get; set; } = null!;
         public bool PermiteVentaACredito { get; set; }
         public bool PermiteCompraACredito { get; set; }
+        public bool RedondearPreciosEnteros { get; set; }
         public int? IdClientePorDefecto { get; set; }
         public int? IdProveedorPorDefecto { get; set; }
 

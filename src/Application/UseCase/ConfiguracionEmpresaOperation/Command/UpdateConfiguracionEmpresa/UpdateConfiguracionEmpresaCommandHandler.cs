@@ -36,6 +36,7 @@ namespace Application.UseCase.ConfiguracionEmpresaOperation.Command.UpdateConfig
                 configuracion.Moneda = request.Moneda;
                 configuracion.PermiteVentaACredito = request.PermiteVentaACredito;
                 configuracion.PermiteCompraACredito = request.PermiteCompraACredito;
+                configuracion.RedondearPreciosEnteros = request.RedondearPreciosEnteros;
                 configuracion.IdClientePorDefecto = request.IdClientePorDefecto;
                 configuracion.IdProveedorPorDefecto = request.IdProveedorPorDefecto;
 

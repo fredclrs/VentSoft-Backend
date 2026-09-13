@@ -141,14 +141,17 @@ create table ConfiguracionEmpresa (
     Moneda varchar(10) default ('Bs.') not null,
     PermiteVentaACredito bit default ((1)) not null,
     PermiteCompraACredito bit default ((1)) not null,
+    RedondearPreciosEnteros bit default ((0)) not null,
     IdClientePorDefecto int null,
     IdProveedorPorDefecto int null
 );
 go
 
--- Si la base ya existía de antes (ya habías corrido este script una vez) y le falta la columna
--- PermiteCompraACredito, corré esto para agregarla sin perder los datos de la tabla:
+-- Si la base ya existía de antes (ya habías corrido este script una vez) y le faltan estas
+-- columnas, corré la que corresponda para agregarla sin perder los datos de la tabla:
 -- alter table ConfiguracionEmpresa add PermiteCompraACredito bit default ((1)) not null;
+-- go
+-- alter table ConfiguracionEmpresa add RedondearPreciosEnteros bit default ((0)) not null;
 -- go
 
 create table DetalleCambioVenta (

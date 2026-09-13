@@ -38,12 +38,13 @@ namespace WebVentSoft.API.Controllers
             public string Moneda { get; set; } = null!;
             public bool PermiteVentaACredito { get; set; } = true;
             public bool PermiteCompraACredito { get; set; } = true;
+            public bool RedondearPreciosEnteros { get; set; } = false;
             public int? IdClientePorDefecto { get; set; }
             public int? IdProveedorPorDefecto { get; set; }
         }
 
         /// <summary>Actualiza el nombre del negocio, el símbolo de moneda, si vende/compra a
-        /// crédito y el cliente/proveedor por defecto.</summary>
+        /// crédito, si redondea precios a enteros, y el cliente/proveedor por defecto.</summary>
         [HttpPut]
         [Authorize(Roles = Permisos.Configuracion)]
         [ProducesResponseType(typeof(BaseResponse<Domain.Dtos.ConfiguracionEmpresaDto>), 200)]
@@ -56,6 +57,7 @@ namespace WebVentSoft.API.Controllers
                 Moneda = request.Moneda,
                 PermiteVentaACredito = request.PermiteVentaACredito,
                 PermiteCompraACredito = request.PermiteCompraACredito,
+                RedondearPreciosEnteros = request.RedondearPreciosEnteros,
                 IdClientePorDefecto = request.IdClientePorDefecto,
                 IdProveedorPorDefecto = request.IdProveedorPorDefecto,
             });

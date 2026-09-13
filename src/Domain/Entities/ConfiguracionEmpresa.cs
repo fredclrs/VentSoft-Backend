@@ -28,5 +28,12 @@ namespace Domain.Entities
 
         /// <summary>Proveedor que se preselecciona al entrar a Compras. Opcional.</summary>
         public int? IdProveedorPorDefecto { get; set; }
+
+        /// <summary>Si es true, el precio de venta calculado automáticamente por margen de
+        /// ganancia (en Artículos y al sugerir precio nuevo después de una Compra) se redondea
+        /// al número entero de arriba (Math.Ceiling) en vez de a 2 decimales — para negocios que
+        /// no manejan centavos. Redondea siempre PARA ARRIBA a propósito: así nunca se pierde
+        /// margen de ganancia por el redondeo.</summary>
+        public bool RedondearPreciosEnteros { get; set; } = false;
     }
 }

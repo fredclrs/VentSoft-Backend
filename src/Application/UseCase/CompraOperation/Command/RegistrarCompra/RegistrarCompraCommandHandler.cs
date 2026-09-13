@@ -1,3 +1,4 @@
+using Application.Interfaces;
 using Application.Interfaces.Repositories;
 using AutoMapper;
 using Domain.Dtos;
@@ -23,17 +24,20 @@ namespace Application.UseCase.CompraOperation.Command.RegistrarCompra
     {
         private readonly ICompraRepository _compraRepository;
         private readonly IArticuloRepository _articuloRepository;
+        private readonly IRepository<ConfiguracionEmpresa> _configuracionRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<RegistrarCompraCommandHandler> _logger;
 
         public RegistrarCompraCommandHandler(
             ICompraRepository compraRepository,
             IArticuloRepository articuloRepository,
+            IRepository<ConfiguracionEmpresa> configuracionRepository,
             IMapper mapper,
             ILogger<RegistrarCompraCommandHandler> logger)
         {
             _compraRepository = compraRepository;
             _articuloRepository = articuloRepository;
+            _configuracionRepository = configuracionRepository;
             _mapper = mapper;
             _logger = logger;
         }
@@ -55,6 +59,11 @@ namespace Application.UseCase.CompraOperation.Command.RegistrarCompra
                     FechaRegistro = DateTime.Now,
                     UserRegistro = "system" // TODO: usuario autenticado real
                 };
+
+                // Se consulta una sola vez antes del loop (no por artículo) para no repetir la
+                // misma consulta N veces en una compra con varios renglones.
+                var redondearEnteros = (await _configuracionRepository.GetAllAsync())
+                    .FirstOrDefault()?.RedondearPreciosEnteros ?? false;
 
                 double total = 0;
                 var preciosSugeridos = new List<PrecioSugeridoDto>();
@@ -97,11 +106,15 @@ namespace Application.UseCase.CompraOperation.Command.RegistrarCompra
                     // Margen de ganancia opcional: si está configurado, se calcula el precio de
                     // venta SUGERIDO con el costo recién actualizado — pero no se aplica acá. El
                     // cajero lo confirma o lo rechaza después de guardar (ver
-                    // ActualizarPrecioArticuloCommand). Se redondea a 2 decimales para no
-                    // sugerir centavos raros.
+                    // ActualizarPrecioArticuloCommand). Redondeo según la configuración del
+                    // negocio: a 2 decimales normalmente, o al entero de ARRIBA (nunca abajo, para
+                    // no perder margen) si el negocio no maneja centavos.
                     if (articulo.MargenGanancia.HasValue)
                     {
-                        var precioSugerido = Math.Round(articulo.Costo * (1 + articulo.MargenGanancia.Value / 100.0), 2);
+                        var precioCalculado = articulo.Costo * (1 + articulo.MargenGanancia.Value / 100.0);
+                        var precioSugerido = redondearEnteros
+                            ? Math.Ceiling(precioCalculado)
+                            : Math.Round(precioCalculado, 2);
                         if (precioSugerido != articulo.Precio)
                         {
                             preciosSugeridos.Add(new PrecioSugeridoDto
