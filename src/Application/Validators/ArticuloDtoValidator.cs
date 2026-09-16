@@ -19,6 +19,9 @@ namespace Application.Validators
             RuleFor(a => a.MargenGanancia)
                 .GreaterThanOrEqualTo(0).When(a => a.MargenGanancia.HasValue)
                 .WithMessage("El margen de ganancia no puede ser negativo.");
+            RuleFor(a => a.MargenGanancia)
+                .LessThan(100).When(a => a.MargenGanancia.HasValue)
+                .WithMessage("El margen de ganancia debe ser menor a 100 (es sobre el precio de venta, no puede ser el 100% o más).");
 
             RuleForEach(a => a.Caracteristicas).ChildRules(c =>
             {

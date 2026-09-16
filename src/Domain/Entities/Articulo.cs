@@ -22,8 +22,10 @@ namespace Domain.Entities
         /// cuando Fraccion > 1.</summary>
         public double? PrecioUnidadSuelta { get; set; }
 
-        /// <summary>Margen de ganancia deseado (%, ej. 40 = 40%), opcional. Si está cargado,
-        /// Precio se recalcula solo como Costo × (1 + Margen/100) cada vez que cambia el Costo
+        /// <summary>Margen de ganancia deseado sobre el PRECIO DE VENTA (%, ej. 40 = 40%: de
+        /// cada $100 que entran, $40 son ganancia), opcional. Así calculan el precio los negocios
+        /// de indumentaria (es la convención del rubro, no markup sobre costo). Si está cargado,
+        /// Precio se recalcula solo como Costo / (1 - Margen/100) cada vez que cambia el Costo
         /// (al registrar una Compra) — no hace falta tocarlo a mano. Si es null, Precio sigue
         /// siendo 100% manual, como antes de este campo.</summary>
         public double? MargenGanancia { get; set; }

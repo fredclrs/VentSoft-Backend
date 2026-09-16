@@ -15,7 +15,8 @@ namespace Application.UseCase.CompraOperation.Command.RegistrarCompra
     /// refleja lo último que se pagó por él, sin mezclarse con compras viejas a otro precio.
     ///
     /// Si el artículo tiene un Margen de ganancia configurado, de paso se calcula un precio de
-    /// venta SUGERIDO (Costo × (1 + Margen/100)) — pero no se aplica todavía: viaja en
+    /// venta SUGERIDO (Costo / (1 - Margen/100), margen sobre precio de venta — la convención
+    /// de indumentaria, no markup sobre costo) — pero no se aplica todavía: viaja en
     /// CompraDto.PreciosSugeridos para que el frontend se lo muestre al cajero después de
     /// guardar, y recién ahí confirme o rechace cada cambio puntual (ver
     /// ActualizarPrecioArticuloCommand, que es el que realmente lo aplica).
@@ -67,6 +68,7 @@ namespace Application.UseCase.CompraOperation.Command.RegistrarCompra
 
                 double total = 0;
                 var preciosSugeridos = new List<PrecioSugeridoDto>();
+                var avisosSinMargen = new List<AvisoSinMargenDto>();
 
                 foreach (var d in dto.Detalles)
                 {
@@ -101,7 +103,25 @@ namespace Application.UseCase.CompraOperation.Command.RegistrarCompra
                     // En artículos que no se venden por caja (Fraccion = 1, la inmensa mayoría),
                     // esta multiplicación no cambia nada.
                     var fraccion = articulo.Fraccion > 0 ? articulo.Fraccion : 1;
+                    var costoAnterior = articulo.Costo;
                     articulo.Costo = (double)d.CostoUnitario * fraccion;
+
+                    // Sin Margen configurado, el sistema no puede recalcular el precio de venta
+                    // solo — pero si el costo subió, avisa igual para que el cajero se acuerde de
+                    // revisarlo a mano (ver PrecioSugeridoDto para el caso CON margen). No se
+                    // avisa en la primera compra de un artículo nuevo (costoAnterior = 0) ni
+                    // cuando el costo bajó o quedó igual.
+                    if (!articulo.MargenGanancia.HasValue && costoAnterior > 0 && articulo.Costo > costoAnterior)
+                    {
+                        avisosSinMargen.Add(new AvisoSinMargenDto
+                        {
+                            IdArticulo = articulo.Id,
+                            Codigo = articulo.Codigo,
+                            PrecioActual = articulo.Precio,
+                            CostoAnterior = costoAnterior,
+                            CostoNuevo = articulo.Costo
+                        });
+                    }
 
                     // Margen de ganancia opcional: si está configurado, se calcula el precio de
                     // venta SUGERIDO con el costo recién actualizado — pero no se aplica acá. El
@@ -109,9 +129,15 @@ namespace Application.UseCase.CompraOperation.Command.RegistrarCompra
                     // ActualizarPrecioArticuloCommand). Redondeo según la configuración del
                     // negocio: a 2 decimales normalmente, o al entero de ARRIBA (nunca abajo, para
                     // no perder margen) si el negocio no maneja centavos.
+                    //
+                    // Margen sobre PRECIO DE VENTA, no sobre costo (Costo / (1 - Margen/100)):
+                    // es la convención de indumentaria — un margen de 40% significa que el costo
+                    // es el 60% del precio final, no que el precio es el costo + 40%. El
+                    // validador (ArticuloDtoValidator) exige Margen < 100 para que esto nunca
+                    // divida por cero o negativo.
                     if (articulo.MargenGanancia.HasValue)
                     {
-                        var precioCalculado = articulo.Costo * (1 + articulo.MargenGanancia.Value / 100.0);
+                        var precioCalculado = articulo.Costo / (1 - articulo.MargenGanancia.Value / 100.0);
                         var precioSugerido = redondearEnteros
                             ? Math.Ceiling(precioCalculado)
                             : Math.Round(precioCalculado, 2);
@@ -144,6 +170,7 @@ namespace Application.UseCase.CompraOperation.Command.RegistrarCompra
                 var creada = await _compraRepository.GetByIdWithDetallesAsync(compra.Id);
                 var resultado = _mapper.Map<CompraDto>(creada);
                 resultado.PreciosSugeridos = preciosSugeridos;
+                resultado.AvisosSinMargen = avisosSinMargen;
                 return BaseResponse<CompraDto>.SuccessResponse(resultado, "Compra registrada correctamente.");
             }
             catch (Exception ex)
