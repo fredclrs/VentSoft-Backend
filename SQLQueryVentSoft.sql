@@ -142,6 +142,7 @@ create table ConfiguracionEmpresa (
     PermiteVentaACredito bit default ((1)) not null,
     PermiteCompraACredito bit default ((1)) not null,
     RedondearPreciosEnteros bit default ((0)) not null,
+    PermiteCodigoCompartidoEntreArticulos bit default ((0)) not null,
     IdClientePorDefecto int null,
     IdProveedorPorDefecto int null
 );
@@ -152,6 +153,8 @@ go
 -- alter table ConfiguracionEmpresa add PermiteCompraACredito bit default ((1)) not null;
 -- go
 -- alter table ConfiguracionEmpresa add RedondearPreciosEnteros bit default ((0)) not null;
+-- go
+-- alter table ConfiguracionEmpresa add PermiteCodigoCompartidoEntreArticulos bit default ((0)) not null;
 -- go
 -- alter table FormaDePago add EsEfectivo bit default ((0)) not null;
 -- go

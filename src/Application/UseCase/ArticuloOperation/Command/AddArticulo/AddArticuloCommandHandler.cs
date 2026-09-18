@@ -1,3 +1,4 @@
+using Application.Interfaces;
 using Application.Interfaces.Repositories;
 using AutoMapper;
 using Domain.Dtos;
@@ -10,12 +11,18 @@ namespace Application.UseCase.ArticuloOperation.Command.AddArticulo
     public class AddArticuloCommandHandler : IRequestHandler<AddArticuloCommand, BaseResponse<ArticuloDto>>
     {
         private readonly IArticuloRepository _repository;
+        private readonly IRepository<ConfiguracionEmpresa> _configuracionRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<AddArticuloCommandHandler> _logger;
 
-        public AddArticuloCommandHandler(IArticuloRepository repository, IMapper mapper, ILogger<AddArticuloCommandHandler> logger)
+        public AddArticuloCommandHandler(
+            IArticuloRepository repository,
+            IRepository<ConfiguracionEmpresa> configuracionRepository,
+            IMapper mapper,
+            ILogger<AddArticuloCommandHandler> logger)
         {
             _repository = repository;
+            _configuracionRepository = configuracionRepository;
             _mapper = mapper;
             _logger = logger;
         }
@@ -24,9 +31,17 @@ namespace Application.UseCase.ArticuloOperation.Command.AddArticulo
         {
             try
             {
-                var existente = await _repository.GetByCodigoAsync(request.ArticuloDto.Codigo);
-                if (existente != null)
-                    return BaseResponse<ArticuloDto>.FailureResponse($"Ya existe un artículo con el código '{request.ArticuloDto.Codigo}'.");
+                // Código único, salvo que el negocio haya activado explícitamente compartirlo
+                // entre variantes (talla/color) de un mismo modelo — ver
+                // ConfiguracionEmpresa.PermiteCodigoCompartidoEntreArticulos.
+                var permiteCompartido = (await _configuracionRepository.GetAllAsync())
+                    .FirstOrDefault()?.PermiteCodigoCompartidoEntreArticulos ?? false;
+                if (!permiteCompartido)
+                {
+                    var existente = await _repository.GetByCodigoAsync(request.ArticuloDto.Codigo);
+                    if (existente != null)
+                        return BaseResponse<ArticuloDto>.FailureResponse($"Ya existe un artículo con el código '{request.ArticuloDto.Codigo}'.");
+                }
 
                 var articulo = _mapper.Map<Articulo>(request.ArticuloDto);
                 articulo.Estado = "AC";

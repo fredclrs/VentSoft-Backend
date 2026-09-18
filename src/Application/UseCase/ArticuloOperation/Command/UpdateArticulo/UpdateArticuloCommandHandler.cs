@@ -1,3 +1,4 @@
+using Application.Interfaces;
 using Application.Interfaces.Repositories;
 using AutoMapper;
 using Domain.Dtos;
@@ -10,12 +11,18 @@ namespace Application.UseCase.ArticuloOperation.Command.UpdateArticulo
     public class UpdateArticuloCommandHandler : IRequestHandler<UpdateArticuloCommand, BaseResponse<ArticuloDto>>
     {
         private readonly IArticuloRepository _repository;
+        private readonly IRepository<ConfiguracionEmpresa> _configuracionRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<UpdateArticuloCommandHandler> _logger;
 
-        public UpdateArticuloCommandHandler(IArticuloRepository repository, IMapper mapper, ILogger<UpdateArticuloCommandHandler> logger)
+        public UpdateArticuloCommandHandler(
+            IArticuloRepository repository,
+            IRepository<ConfiguracionEmpresa> configuracionRepository,
+            IMapper mapper,
+            ILogger<UpdateArticuloCommandHandler> logger)
         {
             _repository = repository;
+            _configuracionRepository = configuracionRepository;
             _mapper = mapper;
             _logger = logger;
         }
@@ -27,6 +34,21 @@ namespace Application.UseCase.ArticuloOperation.Command.UpdateArticulo
                 var articulo = await _repository.GetByIdWithCaracteristicasAsync(request.Id);
                 if (articulo == null)
                     return BaseResponse<ArticuloDto>.FailureResponse("Artículo no encontrado.");
+
+                // Solo hace falta chequear duplicados si el Código realmente está cambiando (si
+                // no cambió, da lo mismo el estado del flag). Ver AddArticuloCommandHandler para
+                // el mismo chequeo en el alta.
+                if (!string.Equals(articulo.Codigo, request.ArticuloDto.Codigo, StringComparison.Ordinal))
+                {
+                    var permiteCompartido = (await _configuracionRepository.GetAllAsync())
+                        .FirstOrDefault()?.PermiteCodigoCompartidoEntreArticulos ?? false;
+                    if (!permiteCompartido)
+                    {
+                        var existente = await _repository.GetByCodigoAsync(request.ArticuloDto.Codigo);
+                        if (existente != null && existente.Id != articulo.Id)
+                            return BaseResponse<ArticuloDto>.FailureResponse($"Ya existe un artículo con el código '{request.ArticuloDto.Codigo}'.");
+                    }
+                }
 
                 _mapper.Map(request.ArticuloDto, articulo);
                 articulo.UserActualizado = "system"; // TODO: usuario autenticado real

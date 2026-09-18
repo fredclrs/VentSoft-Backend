@@ -35,5 +35,14 @@ namespace Domain.Entities
         /// no manejan centavos. Redondea siempre PARA ARRIBA a propósito: así nunca se pierde
         /// margen de ganancia por el redondeo.</summary>
         public bool RedondearPreciosEnteros { get; set; } = false;
+
+        /// <summary>Si es true, varios Artículos pueden compartir el mismo Código de barras —
+        /// pensado para indumentaria, donde una misma prenda (modelo/marca) viene en varias
+        /// tallas/colores pero el negocio maneja un solo código impreso para todas. Cada
+        /// talla/color sigue siendo un Artículo separado (con su propio stock), solo cambia que
+        /// el Código ya no tiene que ser único entre ellos. Con esto en false (por defecto, y lo
+        /// que conviene para cualquier otro rubro: farmacia, ferretería, agro, etc.), el Código
+        /// sigue siendo único como siempre — cero cambio de comportamiento.</summary>
+        public bool PermiteCodigoCompartidoEntreArticulos { get; set; } = false;
     }
 }

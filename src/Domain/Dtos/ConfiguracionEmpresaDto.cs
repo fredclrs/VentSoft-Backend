@@ -8,6 +8,7 @@ namespace Domain.Dtos
         public bool PermiteVentaACredito { get; set; }
         public bool PermiteCompraACredito { get; set; }
         public bool RedondearPreciosEnteros { get; set; }
+        public bool PermiteCodigoCompartidoEntreArticulos { get; set; }
         public int? IdClientePorDefecto { get; set; }
         public int? IdProveedorPorDefecto { get; set; }
 

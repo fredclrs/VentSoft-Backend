@@ -39,12 +39,14 @@ namespace WebVentSoft.API.Controllers
             public bool PermiteVentaACredito { get; set; } = true;
             public bool PermiteCompraACredito { get; set; } = true;
             public bool RedondearPreciosEnteros { get; set; } = false;
+            public bool PermiteCodigoCompartidoEntreArticulos { get; set; } = false;
             public int? IdClientePorDefecto { get; set; }
             public int? IdProveedorPorDefecto { get; set; }
         }
 
         /// <summary>Actualiza el nombre del negocio, el símbolo de moneda, si vende/compra a
-        /// crédito, si redondea precios a enteros, y el cliente/proveedor por defecto.</summary>
+        /// crédito, si redondea precios a enteros, si permite código compartido entre artículos,
+        /// y el cliente/proveedor por defecto.</summary>
         [HttpPut]
         [Authorize(Roles = Permisos.Configuracion)]
         [ProducesResponseType(typeof(BaseResponse<Domain.Dtos.ConfiguracionEmpresaDto>), 200)]
@@ -58,6 +60,7 @@ namespace WebVentSoft.API.Controllers
                 PermiteVentaACredito = request.PermiteVentaACredito,
                 PermiteCompraACredito = request.PermiteCompraACredito,
                 RedondearPreciosEnteros = request.RedondearPreciosEnteros,
+                PermiteCodigoCompartidoEntreArticulos = request.PermiteCodigoCompartidoEntreArticulos,
                 IdClientePorDefecto = request.IdClientePorDefecto,
                 IdProveedorPorDefecto = request.IdProveedorPorDefecto,
             });

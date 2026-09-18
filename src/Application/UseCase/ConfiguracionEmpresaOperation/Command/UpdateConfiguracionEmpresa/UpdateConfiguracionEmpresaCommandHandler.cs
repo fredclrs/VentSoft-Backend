@@ -37,6 +37,7 @@ namespace Application.UseCase.ConfiguracionEmpresaOperation.Command.UpdateConfig
                 configuracion.PermiteVentaACredito = request.PermiteVentaACredito;
                 configuracion.PermiteCompraACredito = request.PermiteCompraACredito;
                 configuracion.RedondearPreciosEnteros = request.RedondearPreciosEnteros;
+                configuracion.PermiteCodigoCompartidoEntreArticulos = request.PermiteCodigoCompartidoEntreArticulos;
                 configuracion.IdClientePorDefecto = request.IdClientePorDefecto;
                 configuracion.IdProveedorPorDefecto = request.IdProveedorPorDefecto;
 

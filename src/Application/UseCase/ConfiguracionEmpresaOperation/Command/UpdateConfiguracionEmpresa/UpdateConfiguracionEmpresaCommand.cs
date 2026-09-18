@@ -10,6 +10,7 @@ namespace Application.UseCase.ConfiguracionEmpresaOperation.Command.UpdateConfig
         public bool PermiteVentaACredito { get; set; } = true;
         public bool PermiteCompraACredito { get; set; } = true;
         public bool RedondearPreciosEnteros { get; set; } = false;
+        public bool PermiteCodigoCompartidoEntreArticulos { get; set; } = false;
         public int? IdClientePorDefecto { get; set; }
         public int? IdProveedorPorDefecto { get; set; }
     }
