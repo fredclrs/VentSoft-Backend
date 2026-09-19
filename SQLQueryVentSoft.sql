@@ -158,6 +158,10 @@ go
 -- go
 -- alter table FormaDePago add EsEfectivo bit default ((0)) not null;
 -- go
+-- alter table FormaDePago add PorcentajeRecargo float null;
+-- go
+-- alter table Venta add RecargoPorcentaje float null;
+-- go
 -- alter table Venta add IdFormaDePago int null;
 -- go
 -- alter table Venta add constraint FK_Venta_FormaDePago foreign key (IdFormaDePago) references FormaDePago (Id) on delete set null;
@@ -297,6 +301,7 @@ create table FormaDePago (
     Id int identity(1,1) primary key not null,
     FormaPago varchar(30) not null,
     EsEfectivo bit default ((0)) not null,
+    PorcentajeRecargo float null,
     Estado char(2) not null,
     UserRegistro varchar(30) null,
     UserActualizado varchar(30) null,
@@ -478,6 +483,7 @@ create table Venta (
     Referencias varchar(100) null,
     DescuentoMonetario float null,
     DescuentoPorcentaje float null,
+    RecargoPorcentaje float null,
     Total float not null,
     Pagado float not null,
     PorPagar float not null,

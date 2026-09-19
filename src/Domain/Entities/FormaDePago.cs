@@ -16,5 +16,11 @@ namespace Domain.Entities
         /// (tarjeta/QR/transferencia, que no es plata física). El negocio puede marcar más de una
         /// si le hace falta (ej. "Efectivo USD" y "Efectivo Bs." separados, ambos físicos).</summary>
         public bool EsEfectivo { get; set; } = false;
+
+        /// <summary>Recargo (%) que se suma al Total de la Venta cuando se cobra con esta forma
+        /// de pago (ej. Transferencia = 5, por el costo/comisión que le genera al negocio).
+        /// Opcional: null o 0 = sin recargo, como la mayoría de las formas de pago. Es solo el
+        /// valor SUGERIDO — en cada Venta se puede ajustar puntualmente (ver Venta.RecargoPorcentaje).</summary>
+        public double? PorcentajeRecargo { get; set; }
     }
 }

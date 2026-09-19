@@ -13,6 +13,7 @@ namespace Domain.Dtos
         public string? Referencias { get; set; }
         public double? DescuentoMonetario { get; set; }
         public double? DescuentoPorcentaje { get; set; }
+        public double? RecargoPorcentaje { get; set; }
         public double Total { get; set; }
         public double Pagado { get; set; }
         public double PorPagar { get; set; }

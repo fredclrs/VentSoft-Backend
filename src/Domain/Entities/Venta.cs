@@ -8,6 +8,13 @@ namespace Domain.Entities
         public string? Referencias { get; set; }
         public double? DescuentoMonetario { get; set; }
         public double? DescuentoPorcentaje { get; set; }
+
+        /// <summary>Recargo (%) aplicado sobre el Total por la forma de pago elegida (ej.
+        /// Transferencia). Se sugiere solo desde FormaDePago.PorcentajeRecargo, pero queda
+        /// guardado acá el valor real usado en ESTA venta puntual (pudo haberse ajustado a
+        /// mano) — para trazabilidad y para que el comprobante lo pueda mostrar. Null = sin
+        /// recargo, como la gran mayoría de las ventas.</summary>
+        public double? RecargoPorcentaje { get; set; }
         public double Total { get; set; }
         public double Pagado { get; set; }
         public double PorPagar { get; set; }

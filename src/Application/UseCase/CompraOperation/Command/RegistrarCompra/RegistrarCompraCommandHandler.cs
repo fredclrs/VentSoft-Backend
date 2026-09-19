@@ -135,7 +135,13 @@ namespace Application.UseCase.CompraOperation.Command.RegistrarCompra
                     // es el 60% del precio final, no que el precio es el costo + 40%. El
                     // validador (ArticuloDtoValidator) exige Margen < 100 para que esto nunca
                     // divida por cero o negativo.
-                    if (articulo.MargenGanancia.HasValue)
+                    //
+                    // Solo tiene sentido sugerir un precio nuevo si el costo REALMENTE cambió
+                    // (costoAnterior > 0 y distinto del nuevo) — si no, el negocio puede haber
+                    // redondeado el precio a mano a un valor "cerrado" que no coincide exacto con
+                    // la cuenta del margen, y sin este chequeo se le sugeriría "corregirlo" en
+                    // cada compra siguiente aunque compre siempre al mismo costo.
+                    if (articulo.MargenGanancia.HasValue && costoAnterior > 0 && articulo.Costo != costoAnterior)
                     {
                         var precioCalculado = articulo.Costo / (1 - articulo.MargenGanancia.Value / 100.0);
                         var precioSugerido = redondearEnteros

@@ -131,8 +131,13 @@ namespace Application.UseCase.VentaOperation.Command.RegistrarVenta
 
                 // Descuento adicional a nivel de venta completa (encima de los descuentos por renglón).
                 var descuentoGeneral = (dto.DescuentoMonetario ?? 0) + (subtotalGeneral * (dto.DescuentoPorcentaje ?? 0) / 100.0);
-                var total = Math.Max(0, subtotalGeneral - descuentoGeneral);
+                var totalConDescuento = Math.Max(0, subtotalGeneral - descuentoGeneral);
 
+                // Recargo por forma de pago (ej. Transferencia): se aplica DESPUÉS del descuento,
+                // sobre lo que efectivamente queda a pagar.
+                var total = totalConDescuento * (1 + (dto.RecargoPorcentaje ?? 0) / 100.0);
+
+                venta.RecargoPorcentaje = dto.RecargoPorcentaje;
                 venta.Total = total;
                 venta.Pagado = dto.Pagado;
                 venta.PorPagar = total - dto.Pagado;

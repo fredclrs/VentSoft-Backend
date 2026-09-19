@@ -10,6 +10,11 @@ namespace Domain.Dtos
         public double? DescuentoMonetario { get; set; }
         public double? DescuentoPorcentaje { get; set; }
 
+        /// <summary>Recargo (%) por la forma de pago elegida (ej. Transferencia) — se aplica
+        /// sobre el Total DESPUÉS de descuentos. Se sugiere desde FormaDePago.PorcentajeRecargo
+        /// pero el cajero lo puede ajustar antes de confirmar la venta. Null/0 = sin recargo.</summary>
+        public double? RecargoPorcentaje { get; set; }
+
         public string? Nota { get; set; }
 
         public int IdCliente { get; set; }

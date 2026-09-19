@@ -14,6 +14,9 @@ namespace Application.UseCase.VentaOperation.Command.RegistrarVenta
                 RuleFor(x => x.VentaDto.IdUsuario).GreaterThan(0).WithMessage("El usuario es obligatorio.");
                 RuleFor(x => x.VentaDto.Pagado).GreaterThanOrEqualTo(0).WithMessage("El monto pagado no puede ser negativo.");
                 RuleFor(x => x.VentaDto.MontoSaldoAFavorAplicado).GreaterThanOrEqualTo(0).WithMessage("El saldo a favor aplicado no puede ser negativo.");
+                RuleFor(x => x.VentaDto.RecargoPorcentaje)
+                    .GreaterThanOrEqualTo(0).WithMessage("El recargo no puede ser negativo.")
+                    .When(x => x.VentaDto.RecargoPorcentaje.HasValue);
 
                 // Si se está cobrando algo ahora, tiene que quedar clasificado cómo — si no, el
                 // reporte "Ventas del día" no puede distinguir efectivo de tarjeta/QR para esta venta.

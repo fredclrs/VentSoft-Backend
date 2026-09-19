@@ -37,12 +37,15 @@ namespace Domain.Entities
         public bool RedondearPreciosEnteros { get; set; } = false;
 
         /// <summary>Si es true, varios Artículos pueden compartir el mismo Código de barras —
-        /// pensado para indumentaria, donde una misma prenda (modelo/marca) viene en varias
-        /// tallas/colores pero el negocio maneja un solo código impreso para todas. Cada
-        /// talla/color sigue siendo un Artículo separado (con su propio stock), solo cambia que
-        /// el Código ya no tiene que ser único entre ellos. Con esto en false (por defecto, y lo
-        /// que conviene para cualquier otro rubro: farmacia, ferretería, agro, etc.), el Código
-        /// sigue siendo único como siempre — cero cambio de comportamiento.</summary>
+        /// para cuando el proveedor imprime un solo código por línea de producto en vez de uno
+        /// por variante puntual (el caso típico es indumentaria: una prenda en varias
+        /// tallas/colores con un solo código impreso para todas, pero puede pasar en otros
+        /// rubros — ej. ferretería con distintos tintes de una misma pintura). Cada variante
+        /// sigue siendo un Artículo separado (con su propio stock), solo cambia que el Código ya
+        /// no tiene que ser único entre ellos. Con esto en false (por defecto, y lo que conviene
+        /// para la mayoría de los rubros — farmacia en particular, donde cada presentación tiene
+        /// su propio código de fábrica), el Código sigue siendo único como siempre — cero cambio
+        /// de comportamiento.</summary>
         public bool PermiteCodigoCompartidoEntreArticulos { get; set; } = false;
     }
 }
