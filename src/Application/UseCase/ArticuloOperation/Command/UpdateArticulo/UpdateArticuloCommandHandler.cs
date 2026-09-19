@@ -35,13 +35,15 @@ namespace Application.UseCase.ArticuloOperation.Command.UpdateArticulo
                 if (articulo == null)
                     return BaseResponse<ArticuloDto>.FailureResponse("Artículo no encontrado.");
 
-                // Solo hace falta re-chequear si el Código o el Tamaño realmente cambian (si no
-                // cambió nada de eso, da lo mismo el estado del flag — sigue siendo la misma
-                // combinación que ya era válida). Ver AddArticuloCommandHandler para el mismo
-                // chequeo en el alta.
+                // Solo hace falta re-chequear si Código/Tamaño/Descripción/Familia realmente
+                // cambian (si no cambió nada de eso, da lo mismo el estado del flag — sigue
+                // siendo la misma combinación que ya era válida). Ver AddArticuloCommandHandler
+                // para el mismo chequeo en el alta.
                 var codigoCambio = !string.Equals(articulo.Codigo, request.ArticuloDto.Codigo, StringComparison.Ordinal);
                 var tamanoCambio = !string.Equals(articulo.Tamano?.Trim(), request.ArticuloDto.Tamano?.Trim(), StringComparison.OrdinalIgnoreCase);
-                if (codigoCambio || tamanoCambio)
+                var descripcionCambio = !string.Equals(articulo.Descripcion?.Trim(), request.ArticuloDto.Descripcion?.Trim(), StringComparison.OrdinalIgnoreCase);
+                var familiaCambio = articulo.IdFamilia != request.ArticuloDto.IdFamilia;
+                if (codigoCambio || tamanoCambio || descripcionCambio || familiaCambio)
                 {
                     var permiteCompartido = (await _configuracionRepository.GetAllAsync())
                         .FirstOrDefault()?.PermiteCodigoCompartidoEntreArticulos ?? false;
@@ -56,15 +58,30 @@ namespace Application.UseCase.ArticuloOperation.Command.UpdateArticulo
                     }
                     else
                     {
-                        // El código se puede repetir entre variantes — pero no la MISMA variante
-                        // (mismo Tamaño) bajo ese código.
-                        var existentes = await _repository.GetAllByCodigoAsync(request.ArticuloDto.Codigo);
-                        var yaExisteVariante = existentes.Any(a =>
-                            a.Id != articulo.Id &&
-                            string.Equals(a.Tamano?.Trim(), request.ArticuloDto.Tamano?.Trim(), StringComparison.OrdinalIgnoreCase));
-                        if (yaExisteVariante)
-                            return BaseResponse<ArticuloDto>.FailureResponse(
-                                $"Ya existe un artículo con el código '{request.ArticuloDto.Codigo}' y la misma variante ('{request.ArticuloDto.Tamano}').");
+                        var existentes = (await _repository.GetAllByCodigoAsync(request.ArticuloDto.Codigo))
+                            .Where(a => a.Id != articulo.Id)
+                            .ToList();
+                        if (existentes.Count > 0)
+                        {
+                            // Todas las variantes de un mismo código tienen que ser la MISMA
+                            // prenda (misma descripción, misma familia) — si no, lo más probable
+                            // es que se reutilizó el código por error, no que sea otra variante.
+                            var primero = existentes[0];
+                            if (!string.Equals(primero.Descripcion?.Trim(), request.ArticuloDto.Descripcion?.Trim(), StringComparison.OrdinalIgnoreCase))
+                                return BaseResponse<ArticuloDto>.FailureResponse(
+                                    $"Ya existe un artículo con el código '{request.ArticuloDto.Codigo}' pero con otra descripción ('{primero.Descripcion}'). Las variantes de un mismo código tienen que ser la misma prenda (misma descripción y familia), solo cambiando talla/color.");
+                            if (primero.IdFamilia != request.ArticuloDto.IdFamilia)
+                                return BaseResponse<ArticuloDto>.FailureResponse(
+                                    $"Ya existe un artículo con el código '{request.ArticuloDto.Codigo}' pero de otra familia. Las variantes de un mismo código tienen que ser la misma prenda (misma descripción y familia), solo cambiando talla/color.");
+
+                            // El código se puede repetir entre variantes — pero no la MISMA
+                            // variante (mismo Tamaño) bajo ese código.
+                            var yaExisteVariante = existentes.Any(a =>
+                                string.Equals(a.Tamano?.Trim(), request.ArticuloDto.Tamano?.Trim(), StringComparison.OrdinalIgnoreCase));
+                            if (yaExisteVariante)
+                                return BaseResponse<ArticuloDto>.FailureResponse(
+                                    $"Ya existe un artículo con el código '{request.ArticuloDto.Codigo}' y la misma variante ('{request.ArticuloDto.Tamano}').");
+                        }
                     }
                 }
 
