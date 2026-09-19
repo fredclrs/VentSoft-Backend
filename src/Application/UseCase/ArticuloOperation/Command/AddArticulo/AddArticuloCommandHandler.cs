@@ -42,6 +42,18 @@ namespace Application.UseCase.ArticuloOperation.Command.AddArticulo
                     if (existente != null)
                         return BaseResponse<ArticuloDto>.FailureResponse($"Ya existe un artículo con el código '{request.ArticuloDto.Codigo}'.");
                 }
+                else
+                {
+                    // El código se puede repetir entre variantes — pero no la MISMA variante
+                    // (mismo Tamaño) bajo ese código, porque ahí sí sería un duplicado real
+                    // por error, no una variante nueva.
+                    var existentes = await _repository.GetAllByCodigoAsync(request.ArticuloDto.Codigo);
+                    var yaExisteVariante = existentes.Any(a =>
+                        string.Equals(a.Tamano?.Trim(), request.ArticuloDto.Tamano?.Trim(), StringComparison.OrdinalIgnoreCase));
+                    if (yaExisteVariante)
+                        return BaseResponse<ArticuloDto>.FailureResponse(
+                            $"Ya existe un artículo con el código '{request.ArticuloDto.Codigo}' y la misma variante ('{request.ArticuloDto.Tamano}').");
+                }
 
                 var articulo = _mapper.Map<Articulo>(request.ArticuloDto);
                 articulo.Estado = "AC";

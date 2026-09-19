@@ -15,6 +15,14 @@ namespace Infrastructure.Repositories
                 .FirstOrDefaultAsync(x => x.Codigo == codigo);
         }
 
+        public async Task<List<Articulo>> GetAllByCodigoAsync(string codigo)
+        {
+            return await _context.Articulos
+                .Include(x => x.Caracteristicas)
+                .Where(x => x.Codigo == codigo)
+                .ToListAsync();
+        }
+
         public async Task<Articulo?> GetByIdWithCaracteristicasAsync(int id)
         {
             return await _context.Articulos

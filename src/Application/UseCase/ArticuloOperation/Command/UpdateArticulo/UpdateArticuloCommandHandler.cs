@@ -35,18 +35,36 @@ namespace Application.UseCase.ArticuloOperation.Command.UpdateArticulo
                 if (articulo == null)
                     return BaseResponse<ArticuloDto>.FailureResponse("Artículo no encontrado.");
 
-                // Solo hace falta chequear duplicados si el Código realmente está cambiando (si
-                // no cambió, da lo mismo el estado del flag). Ver AddArticuloCommandHandler para
-                // el mismo chequeo en el alta.
-                if (!string.Equals(articulo.Codigo, request.ArticuloDto.Codigo, StringComparison.Ordinal))
+                // Solo hace falta re-chequear si el Código o el Tamaño realmente cambian (si no
+                // cambió nada de eso, da lo mismo el estado del flag — sigue siendo la misma
+                // combinación que ya era válida). Ver AddArticuloCommandHandler para el mismo
+                // chequeo en el alta.
+                var codigoCambio = !string.Equals(articulo.Codigo, request.ArticuloDto.Codigo, StringComparison.Ordinal);
+                var tamanoCambio = !string.Equals(articulo.Tamano?.Trim(), request.ArticuloDto.Tamano?.Trim(), StringComparison.OrdinalIgnoreCase);
+                if (codigoCambio || tamanoCambio)
                 {
                     var permiteCompartido = (await _configuracionRepository.GetAllAsync())
                         .FirstOrDefault()?.PermiteCodigoCompartidoEntreArticulos ?? false;
                     if (!permiteCompartido)
                     {
-                        var existente = await _repository.GetByCodigoAsync(request.ArticuloDto.Codigo);
-                        if (existente != null && existente.Id != articulo.Id)
-                            return BaseResponse<ArticuloDto>.FailureResponse($"Ya existe un artículo con el código '{request.ArticuloDto.Codigo}'.");
+                        if (codigoCambio)
+                        {
+                            var existente = await _repository.GetByCodigoAsync(request.ArticuloDto.Codigo);
+                            if (existente != null && existente.Id != articulo.Id)
+                                return BaseResponse<ArticuloDto>.FailureResponse($"Ya existe un artículo con el código '{request.ArticuloDto.Codigo}'.");
+                        }
+                    }
+                    else
+                    {
+                        // El código se puede repetir entre variantes — pero no la MISMA variante
+                        // (mismo Tamaño) bajo ese código.
+                        var existentes = await _repository.GetAllByCodigoAsync(request.ArticuloDto.Codigo);
+                        var yaExisteVariante = existentes.Any(a =>
+                            a.Id != articulo.Id &&
+                            string.Equals(a.Tamano?.Trim(), request.ArticuloDto.Tamano?.Trim(), StringComparison.OrdinalIgnoreCase));
+                        if (yaExisteVariante)
+                            return BaseResponse<ArticuloDto>.FailureResponse(
+                                $"Ya existe un artículo con el código '{request.ArticuloDto.Codigo}' y la misma variante ('{request.ArticuloDto.Tamano}').");
                     }
                 }
 
