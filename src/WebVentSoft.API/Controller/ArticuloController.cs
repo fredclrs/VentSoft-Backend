@@ -108,7 +108,8 @@ namespace WebVentSoft.API.Controllers
             return response.Success ? Ok(response) : BadRequest(response);
         }
 
-        /// <summary>Artículos activos cuyo stock actual llegó o bajó de su StockMinimo.</summary>
+        /// <summary>Artículos activos cuyo stock actual llegó o bajó de su StockMinimo — o, si no
+        /// tienen StockMinimo cargado, que se quedaron en 0 o menos.</summary>
         [HttpGet("stockBajo")]
         [ProducesResponseType(typeof(BaseResponse<List<ArticuloStockDto>>), 200)]
         [ProducesResponseType(typeof(BaseResponse<List<ArticuloStockDto>>), 400)]

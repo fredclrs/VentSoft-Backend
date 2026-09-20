@@ -24,7 +24,7 @@ namespace Application.UseCase.ArticuloOperation.Queries.GetArticulosStockBajo
             try
             {
                 var articulos = (await _articuloRepository.GetAllAsync())
-                    .Where(a => a.Estado == "AC" && a.StockMinimo.HasValue)
+                    .Where(a => a.Estado == "AC")
                     .ToList();
 
                 var resultado = new List<ArticuloStockDto>();
@@ -32,7 +32,16 @@ namespace Application.UseCase.ArticuloOperation.Queries.GetArticulosStockBajo
                 foreach (var articulo in articulos)
                 {
                     var stock = await _stockService.GetStockActualAsync(articulo.Id);
-                    if (stock <= articulo.StockMinimo!.Value)
+
+                    // Si no cargaron Stock mínimo (es opcional, ej. en artículos con código
+                    // compartido si no lo completaron), no hay forma de saber qué es "poco" para
+                    // ese artículo — pero igual avisamos si se quedó directamente en 0 o menos,
+                    // que es un caso que no necesita ninguna configuración para ser un problema.
+                    var bajoStock = articulo.StockMinimo.HasValue
+                        ? stock <= articulo.StockMinimo.Value
+                        : stock <= 0;
+
+                    if (bajoStock)
                     {
                         resultado.Add(new ArticuloStockDto
                         {
