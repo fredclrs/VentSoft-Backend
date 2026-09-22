@@ -283,6 +283,17 @@ create table EntregaBien (
 );
 go
 
+create table EtiquetaPendiente (
+    -- Cola de etiquetas de código de barras pendientes de imprimir (ver comentario en la
+    -- entidad EtiquetaPendiente.cs) — scratch data, no lleva Estado/auditoría como el resto.
+    Id int identity(1,1) primary key not null,
+    IdArticulo int not null,
+    Cantidad int not null,
+    FechaAgregado datetime not null,
+    UserAgregado varchar(30) null
+);
+go
+
 create table Familia (
     Id int identity(1,1) primary key not null,
     NombreFamilia varchar(50) not null,
@@ -581,6 +592,20 @@ alter table AjusteStock add constraint FK_AjusteStock_Articulo foreign key (IdAr
 go
 alter table AjusteStock add constraint FK_AjusteStock_Usuario foreign key (IdUsuario) references Usuario (Id);
 go
+alter table EtiquetaPendiente add constraint FK_EtiquetaPendiente_Articulo foreign key (IdArticulo) references Articulo (Id) on delete cascade;
+go
+
+-- Si la base ya existía de antes y le falta la tabla de la cola de etiquetas, corré esto:
+-- create table EtiquetaPendiente (
+--     Id int identity(1,1) primary key not null,
+--     IdArticulo int not null,
+--     Cantidad int not null,
+--     FechaAgregado datetime not null,
+--     UserAgregado varchar(30) null
+-- );
+-- go
+-- alter table EtiquetaPendiente add constraint FK_EtiquetaPendiente_Articulo foreign key (IdArticulo) references Articulo (Id) on delete cascade;
+-- go
 
 -- No es SQL, es un comando de Package Manager Console (Visual Studio) para
 -- generar el DbContext por scaffolding si alguna vez lo necesitas. No corre en SSMS:

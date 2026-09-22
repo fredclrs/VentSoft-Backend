@@ -35,6 +35,7 @@ namespace Infrastructure.Persistence
         public DbSet<Liquidacion> Liquidaciones => Set<Liquidacion>();
         public DbSet<MovimientoCaja> MovimientosCaja => Set<MovimientoCaja>();
         public DbSet<AjusteStock> AjustesStock => Set<AjusteStock>();
+        public DbSet<EtiquetaPendiente> EtiquetasPendientes => Set<EtiquetaPendiente>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
