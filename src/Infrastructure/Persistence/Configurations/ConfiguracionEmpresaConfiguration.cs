@@ -27,6 +27,9 @@ namespace Infrastructure.Persistence.Configurations
 
             builder.Property(x => x.RedondearPreciosEnteros)
                 .IsRequired();
+
+            builder.Property(x => x.ClaveApiIACifrada)
+                .HasMaxLength(500);
         }
     }
 }

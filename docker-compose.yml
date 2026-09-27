@@ -87,6 +87,7 @@ services:
       Jwt__Issuer: VentSoft.API
       Jwt__Audience: VentSoft.Front
       Jwt__ExpireMinutes: "480"
+      Encryption__Key: ${ENCRYPTION_KEY}
       Cors__AllowedOrigins__0: "https://${SITE_DOMAIN}"
     ports:
       - "5187:8080"

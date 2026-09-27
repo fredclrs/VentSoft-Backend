@@ -43,6 +43,7 @@ namespace Application.UseCase.ConfiguracionEmpresaOperation.Queries.GetConfigura
                 }
 
                 var dto = _mapper.Map<ConfiguracionEmpresaDto>(configuracion);
+                dto.TieneClaveApiIA = configuracion.ClaveApiIACifrada != null;
 
                 // Se resuelven acá (y no con un Include, porque el repositorio genérico no lo
                 // soporta) para que el frontend pueda preseleccionar el cliente/proveedor por

@@ -10,12 +10,18 @@ namespace Application.UseCase.ConfiguracionEmpresaOperation.Command.UpdateConfig
     public class UpdateConfiguracionEmpresaCommandHandler : IRequestHandler<UpdateConfiguracionEmpresaCommand, BaseResponse<ConfiguracionEmpresaDto>>
     {
         private readonly IRepository<ConfiguracionEmpresa> _repository;
+        private readonly ICifradoService _cifradoService;
         private readonly IMapper _mapper;
         private readonly ILogger<UpdateConfiguracionEmpresaCommandHandler> _logger;
 
-        public UpdateConfiguracionEmpresaCommandHandler(IRepository<ConfiguracionEmpresa> repository, IMapper mapper, ILogger<UpdateConfiguracionEmpresaCommandHandler> logger)
+        public UpdateConfiguracionEmpresaCommandHandler(
+            IRepository<ConfiguracionEmpresa> repository,
+            ICifradoService cifradoService,
+            IMapper mapper,
+            ILogger<UpdateConfiguracionEmpresaCommandHandler> logger)
         {
             _repository = repository;
+            _cifradoService = cifradoService;
             _mapper = mapper;
             _logger = logger;
         }
@@ -41,12 +47,22 @@ namespace Application.UseCase.ConfiguracionEmpresaOperation.Command.UpdateConfig
                 configuracion.IdClientePorDefecto = request.IdClientePorDefecto;
                 configuracion.IdProveedorPorDefecto = request.IdProveedorPorDefecto;
 
+                // Solo se toca si mandaron una clave nueva de verdad — el frontend nunca conoce
+                // la clave ya guardada (no se la devolvemos), así que si no la reenvía es porque
+                // no la está cambiando, no porque quiera borrarla (para eso está el flag de abajo).
+                if (request.EliminarClaveApiIA)
+                    configuracion.ClaveApiIACifrada = null;
+                else if (!string.IsNullOrWhiteSpace(request.ClaveApiIA))
+                    configuracion.ClaveApiIACifrada = _cifradoService.Cifrar(request.ClaveApiIA);
+
                 if (configuracion.Id != 0)
                     _repository.Update(configuracion);
 
                 await _repository.SaveChangesAsync();
 
-                return BaseResponse<ConfiguracionEmpresaDto>.SuccessResponse(_mapper.Map<ConfiguracionEmpresaDto>(configuracion), "Se actualizó la configuración del negocio correctamente.");
+                var dto = _mapper.Map<ConfiguracionEmpresaDto>(configuracion);
+                dto.TieneClaveApiIA = configuracion.ClaveApiIACifrada != null;
+                return BaseResponse<ConfiguracionEmpresaDto>.SuccessResponse(dto, "Se actualizó la configuración del negocio correctamente.");
             }
             catch (Exception ex)
             {

@@ -143,6 +143,7 @@ create table ConfiguracionEmpresa (
     PermiteCompraACredito bit default ((1)) not null,
     RedondearPreciosEnteros bit default ((0)) not null,
     PermiteCodigoCompartidoEntreArticulos bit default ((0)) not null,
+    ClaveApiIACifrada nvarchar(500) null,
     IdClientePorDefecto int null,
     IdProveedorPorDefecto int null
 );
@@ -155,6 +156,8 @@ go
 -- alter table ConfiguracionEmpresa add RedondearPreciosEnteros bit default ((0)) not null;
 -- go
 -- alter table ConfiguracionEmpresa add PermiteCodigoCompartidoEntreArticulos bit default ((0)) not null;
+-- go
+-- alter table ConfiguracionEmpresa add ClaveApiIACifrada nvarchar(500) null;
 -- go
 -- alter table FormaDePago add EsEfectivo bit default ((0)) not null;
 -- go

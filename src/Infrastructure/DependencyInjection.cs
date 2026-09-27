@@ -31,6 +31,7 @@ namespace Infrastructure
 
             services.AddScoped<IPasswordHasher, PasswordHasher>();
             services.AddScoped<IStockService, StockService>();
+            services.AddScoped<ICifradoService, CifradoService>();
 
             services.AddScoped<IUsuarioQueryService, UsuarioQueryService>();
             services.AddScoped<IUsuarioCommandService, UsuarioCommandService>();

@@ -47,5 +47,11 @@ namespace Domain.Entities
         /// su propio código de fábrica), el Código sigue siendo único como siempre — cero cambio
         /// de comportamiento.</summary>
         public bool PermiteCodigoCompartidoEntreArticulos { get; set; } = false;
+
+        /// <summary>API key de Anthropic (para las funciones de IA — leer facturas por foto,
+        /// completar productos, etc.), cifrada en reposo con ICifradoService — nunca se guarda ni
+        /// se devuelve en texto plano al frontend (ver TieneClaveApiIA en el Dto). Null = el
+        /// negocio no configuró ninguna, las funciones de IA quedan ocultas.</summary>
+        public string? ClaveApiIACifrada { get; set; }
     }
 }
