@@ -18,14 +18,20 @@ namespace Application.UseCase.IaOperation.Command.InterpretarListaProductos
     {
         private const string Prompt =
             "El siguiente texto es una lista escrita a mano por el dueño de un negocio de " +
-            "indumentaria, describiendo productos que recibió (una prenda por línea, más o menos, " +
-            "aunque puede venir todo junto). Para cada producto que identifiques, devolveme " +
-            "ÚNICAMENTE un array JSON (sin texto antes ni después, sin bloque de código markdown) " +
-            "donde cada elemento tenga exactamente estas claves: \"descripcion\" (string, el " +
-            "nombre del producto sin la talla/color/cantidad, ej. \"remera polo\"), \"talla\" " +
-            "(string o null si no se menciona), \"color\" (string o null si no se menciona), " +
-            "\"cantidad\" (número entero — si no se menciona ninguna cantidad para un producto, " +
-            "asumí 1). Texto a interpretar:\n\n";
+            "indumentaria, describiendo productos que recibió. Devolveme ÚNICAMENTE un array " +
+            "JSON (sin texto antes ni después, sin bloque de código markdown) con UN elemento por " +
+            "cada variante (cada combinación de talla/color), no uno por producto — cada elemento " +
+            "con exactamente estas claves: \"descripcion\" (string, el nombre del producto SIN la " +
+            "talla/color/cantidad, ej. \"remera nike\"), \"talla\" (string o null si no se " +
+            "menciona), \"color\" (string o null si no se menciona), \"cantidad\" (número entero — " +
+            "si no se menciona ninguna cantidad, asumí 1). Un caso MUY común: el nombre del " +
+            "producto se escribe una sola vez, seguido de varias líneas o frases separadas por " +
+            "coma que son puras tallas/colores/cantidades de ESE MISMO producto (ej. \"Remera Nike " +
+            "talla L color azul stock 4, talla M color blanco stock 3, talla XXL color azul stock " +
+            "3\" son 3 variantes de \"Remera Nike\", no 3 productos distintos ni productos sin " +
+            "nombre) — en ese caso repetí la MISMA descripción en las 3, nunca la dejes en blanco " +
+            "ni inventes un nombre distinto. \"stock\" en el texto significa lo mismo que " +
+            "\"cantidad\". Texto a interpretar:\n\n";
 
         private readonly IRepository<ConfiguracionEmpresa> _configuracionRepository;
         private readonly IArticuloRepository _articuloRepository;
