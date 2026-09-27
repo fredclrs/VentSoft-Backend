@@ -54,7 +54,7 @@ namespace Application.UseCase.IaOperation.Command.InterpretarListaProductos
                 if (string.IsNullOrWhiteSpace(request.Texto))
                     return BaseResponse<List<LineaTextoProductoDto>>.FailureResponse("Escribí al menos un producto.");
 
-                var (apiKey, error) = await IaHelpers.ObtenerApiKeyAsync(_configuracionRepository, _cifradoService);
+                var (apiKey, permiteCodigoCompartido, error) = await IaHelpers.ObtenerApiKeyAsync(_configuracionRepository, _cifradoService);
                 if (apiKey == null)
                     return BaseResponse<List<LineaTextoProductoDto>>.FailureResponse(error!);
 
@@ -72,17 +72,7 @@ namespace Application.UseCase.IaOperation.Command.InterpretarListaProductos
 
                 foreach (var linea in lineas)
                 {
-                    var match = IaHelpers.BuscarCoincidencia(linea.Descripcion, articulos);
-                    if (match != null)
-                    {
-                        linea.EsNuevo = false;
-                        linea.IdArticuloExistente = match.Id;
-                        linea.CodigoExistente = match.Codigo;
-                    }
-                    else
-                    {
-                        linea.EsNuevo = true;
-                    }
+                    IaHelpers.Clasificar(linea, articulos, permiteCodigoCompartido);
                 }
 
                 return BaseResponse<List<LineaTextoProductoDto>>.SuccessResponse(lineas, "Lista interpretada correctamente.");

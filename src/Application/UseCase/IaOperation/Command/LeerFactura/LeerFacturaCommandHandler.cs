@@ -20,12 +20,14 @@ namespace Application.UseCase.IaOperation.Command.LeerFactura
             "Esta imagen es una factura de compra de un negocio minorista. Identificá cada " +
             "producto/línea de la factura y devolveme ÚNICAMENTE un array JSON (sin texto antes " +
             "ni después, sin bloque de código markdown), donde cada elemento tenga exactamente " +
-            "estas claves: \"descripcion\" (string, el nombre/descripción del producto tal como " +
-            "figura en la factura), \"cantidad\" (número entero), \"costoUnitario\" (número, el " +
-            "costo de UNA unidad — si la factura solo trae el subtotal de la línea, dividí por la " +
-            "cantidad). Si no podés leer algún dato con confianza, hacé tu mejor estimación en vez " +
-            "de inventar un valor absurdo. No incluyas totales, impuestos, ni líneas que no sean " +
-            "productos.";
+            "estas claves: \"descripcion\" (string, el nombre del producto SIN la talla/color, ej. " +
+            "\"remera polo\" — si la factura no separa talla/color del nombre, dejá la descripción " +
+            "completa acá y \"talla\"/\"color\" en null), \"talla\" (string o null si la factura no " +
+            "la menciona por separado), \"color\" (string o null si no la menciona), \"cantidad\" " +
+            "(número entero), \"costoUnitario\" (número, el costo de UNA unidad — si la factura " +
+            "solo trae el subtotal de la línea, dividí por la cantidad). Si no podés leer algún " +
+            "dato con confianza, hacé tu mejor estimación en vez de inventar un valor absurdo. No " +
+            "incluyas totales, impuestos, ni líneas que no sean productos.";
 
         private readonly IRepository<ConfiguracionEmpresa> _configuracionRepository;
         private readonly IArticuloRepository _articuloRepository;
@@ -51,7 +53,7 @@ namespace Application.UseCase.IaOperation.Command.LeerFactura
         {
             try
             {
-                var (apiKey, error) = await IaHelpers.ObtenerApiKeyAsync(_configuracionRepository, _cifradoService);
+                var (apiKey, permiteCodigoCompartido, error) = await IaHelpers.ObtenerApiKeyAsync(_configuracionRepository, _cifradoService);
                 if (apiKey == null)
                     return BaseResponse<List<LineaFacturaDto>>.FailureResponse(error!);
 
@@ -69,17 +71,7 @@ namespace Application.UseCase.IaOperation.Command.LeerFactura
 
                 foreach (var linea in lineas)
                 {
-                    var match = IaHelpers.BuscarCoincidencia(linea.Descripcion, articulos);
-                    if (match != null)
-                    {
-                        linea.EsNuevo = false;
-                        linea.IdArticuloExistente = match.Id;
-                        linea.CodigoExistente = match.Codigo;
-                    }
-                    else
-                    {
-                        linea.EsNuevo = true;
-                    }
+                    IaHelpers.Clasificar(linea, articulos, permiteCodigoCompartido);
                 }
 
                 return BaseResponse<List<LineaFacturaDto>>.SuccessResponse(lineas, "Factura leída correctamente.");

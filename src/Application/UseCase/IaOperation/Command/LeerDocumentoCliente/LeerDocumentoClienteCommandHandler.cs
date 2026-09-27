@@ -42,7 +42,7 @@ namespace Application.UseCase.IaOperation.Command.LeerDocumentoCliente
         {
             try
             {
-                var (apiKey, error) = await IaHelpers.ObtenerApiKeyAsync(_configuracionRepository, _cifradoService);
+                var (apiKey, _, error) = await IaHelpers.ObtenerApiKeyAsync(_configuracionRepository, _cifradoService);
                 if (apiKey == null)
                     return BaseResponse<DatosClienteExtraidosDto>.FailureResponse(error!);
 
