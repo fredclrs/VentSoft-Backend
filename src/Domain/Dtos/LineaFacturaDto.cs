@@ -9,9 +9,10 @@ namespace Domain.Dtos
     {
         public string Descripcion { get; set; } = null!;
 
-        /// <summary>Solo si la factura la menciona por separado — no siempre viene.</summary>
-        public string? Talla { get; set; }
-        public string? Color { get; set; }
+        /// <summary>Atributos libres que la factura menciona para esta línea (talla, color,
+        /// material, lote, lo que use este negocio en particular) — cada uno ya viene resuelto
+        /// contra el catálogo de Caracteristicas del negocio cuando es posible.</summary>
+        public List<ArticuloCaracteristicaDto> Caracteristicas { get; set; } = new();
 
         public int Cantidad { get; set; }
         public double CostoUnitario { get; set; }

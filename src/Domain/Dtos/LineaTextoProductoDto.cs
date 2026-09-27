@@ -8,16 +8,18 @@ namespace Domain.Dtos
     public class LineaTextoProductoDto : ILineaClasificable
     {
         public string Descripcion { get; set; } = null!;
-        public string? Talla { get; set; }
-        public string? Color { get; set; }
+
+        /// <summary>Atributos libres para esta línea (talla, color, material, lote, lo que use
+        /// este negocio en particular).</summary>
+        public List<ArticuloCaracteristicaDto> Caracteristicas { get; set; } = new();
         public int Cantidad { get; set; }
 
         public bool EsNuevo { get; set; }
 
-        /// <summary>true si el producto (mismo código compartido) ya existe pero esta talla/color
-        /// puntual no — hace falta completar Talla/Color nomás, el Código/Familia se reusan (ver
-        /// CodigoGrupo/IdFamiliaGrupo). Solo puede pasar si el negocio tiene código compartido
-        /// activado.</summary>
+        /// <summary>true si el producto (mismo código compartido) ya existe pero esta variante
+        /// puntual no — hace falta completar las Caracteristicas nomás, el Código/Familia se
+        /// reusan (ver CodigoGrupo/IdFamiliaGrupo). Solo puede pasar si el negocio tiene código
+        /// compartido activado.</summary>
         public bool EsVarianteNueva { get; set; }
 
         public int? IdArticuloExistente { get; set; }

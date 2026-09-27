@@ -16,24 +16,26 @@ namespace Application.UseCase.IaOperation.Command.InterpretarListaProductos
     /// </summary>
     public class InterpretarListaProductosCommandHandler : IRequestHandler<InterpretarListaProductosCommand, BaseResponse<List<LineaTextoProductoDto>>>
     {
-        private const string Prompt =
-            "El siguiente texto es una lista escrita a mano por el dueño de un negocio de " +
-            "indumentaria, describiendo productos que recibió. Devolveme ÚNICAMENTE un array " +
+        private static string ConstruirPrompt(List<Caracteristica> catalogoCaracteristicas) =>
+            "El siguiente texto es una lista escrita a mano por el dueño de un negocio, " +
+            "describiendo productos que recibió. Devolveme ÚNICAMENTE un array " +
             "JSON (sin texto antes ni después, sin bloque de código markdown) con UN elemento por " +
-            "cada variante (cada combinación de talla/color), no uno por producto — cada elemento " +
-            "con exactamente estas claves: \"descripcion\" (string, el nombre del producto SIN la " +
-            "talla/color/cantidad, ej. \"remera nike\"), \"talla\" (string o null si no se " +
-            "menciona), \"color\" (string o null si no se menciona), \"cantidad\" (número entero — " +
-            "si no se menciona ninguna cantidad, asumí 1). Un caso MUY común: el nombre del " +
-            "producto se escribe una sola vez, seguido de varias líneas o frases separadas por " +
-            "coma que son puras tallas/colores/cantidades de ESE MISMO producto (ej. \"Remera Nike " +
-            "talla L color azul stock 4, talla M color blanco stock 3, talla XXL color azul stock " +
-            "3\" son 3 variantes de \"Remera Nike\", no 3 productos distintos ni productos sin " +
-            "nombre) — en ese caso repetí la MISMA descripción en las 3, nunca la dejes en blanco " +
-            "ni inventes un nombre distinto. \"stock\" en el texto significa lo mismo que " +
-            "\"cantidad\". Texto a interpretar:\n\n";
+            "cada variante, no uno por producto — cada elemento " +
+            "con exactamente estas claves: \"descripcion\" (string, el nombre del producto SIN sus " +
+            "atributos de variante ni la cantidad, ej. \"remera nike\"), \"caracteristicas\" " +
+            "(array — ver abajo), \"cantidad\" (número entero — si no se menciona ninguna " +
+            "cantidad, asumí 1). " +
+            IaHelpers.DescribirCaracteristicasParaPrompt(catalogoCaracteristicas) +
+            " Un caso MUY común: el nombre del producto se escribe una sola vez, seguido de " +
+            "varias líneas o frases separadas por coma que son puros atributos/cantidades de ESE " +
+            "MISMO producto (ej. \"Remera Nike talla L color azul stock 4, talla M color blanco " +
+            "stock 3, talla XXL color azul stock 3\" son 3 variantes de \"Remera Nike\", no 3 " +
+            "productos distintos ni productos sin nombre) — en ese caso repetí la MISMA " +
+            "descripción en las 3, nunca la dejes en blanco ni inventes un nombre distinto. " +
+            "\"stock\" en el texto significa lo mismo que \"cantidad\". Texto a interpretar:\n\n";
 
         private readonly IRepository<ConfiguracionEmpresa> _configuracionRepository;
+        private readonly IRepository<Caracteristica> _caracteristicaRepository;
         private readonly IArticuloRepository _articuloRepository;
         private readonly ICifradoService _cifradoService;
         private readonly IAnthropicClient _anthropicClient;
@@ -41,12 +43,14 @@ namespace Application.UseCase.IaOperation.Command.InterpretarListaProductos
 
         public InterpretarListaProductosCommandHandler(
             IRepository<ConfiguracionEmpresa> configuracionRepository,
+            IRepository<Caracteristica> caracteristicaRepository,
             IArticuloRepository articuloRepository,
             ICifradoService cifradoService,
             IAnthropicClient anthropicClient,
             ILogger<InterpretarListaProductosCommandHandler> logger)
         {
             _configuracionRepository = configuracionRepository;
+            _caracteristicaRepository = caracteristicaRepository;
             _articuloRepository = articuloRepository;
             _cifradoService = cifradoService;
             _anthropicClient = anthropicClient;
@@ -64,9 +68,11 @@ namespace Application.UseCase.IaOperation.Command.InterpretarListaProductos
                 if (apiKey == null)
                     return BaseResponse<List<LineaTextoProductoDto>>.FailureResponse(error!);
 
+                var catalogoCaracteristicas = (await _caracteristicaRepository.GetAllAsync()).ToList();
+
                 var respuestaTexto = await _anthropicClient.EnviarAsync(
                     apiKey,
-                    Prompt + request.Texto,
+                    ConstruirPrompt(catalogoCaracteristicas) + request.Texto,
                     imagen: null,
                     cancellationToken);
 
@@ -78,6 +84,7 @@ namespace Application.UseCase.IaOperation.Command.InterpretarListaProductos
 
                 foreach (var linea in lineas)
                 {
+                    IaHelpers.ResolverCaracteristicas(linea.Caracteristicas, catalogoCaracteristicas);
                     IaHelpers.Clasificar(linea, articulos, permiteCodigoCompartido);
                 }
 
