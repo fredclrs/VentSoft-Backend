@@ -33,6 +33,11 @@ namespace Infrastructure
             services.AddScoped<IStockService, StockService>();
             services.AddScoped<ICifradoService, CifradoService>();
 
+            // Único cliente HTTP saliente del backend (funciones de IA: leer factura, interpretar
+            // lista de productos, leer documento de cliente) — "typed client" para que .NET
+            // maneje el pooling de conexiones solo, sin registrar nada más a mano.
+            services.AddHttpClient<IAnthropicClient, AnthropicClient>();
+
             services.AddScoped<IUsuarioQueryService, UsuarioQueryService>();
             services.AddScoped<IUsuarioCommandService, UsuarioCommandService>();
 
