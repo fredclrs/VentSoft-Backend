@@ -9,30 +9,35 @@ using Microsoft.Extensions.Logging;
 namespace Application.UseCase.IaOperation.Command.InterpretarListaProductos
 {
     /// <summary>
-    /// Interpreta una lista de texto libre escrita a mano (ej. "remera polo azul 4\nremera nike
-    /// rojo talla M 5") y devuelve una lista de renglones ya comparados contra el catálogo — para
-    /// cuando llega mercadería sin una factura formal. Igual que LeerFactura: solo sugiere, la
-    /// persona confirma en Artículos.
+    /// Interpreta una lista de texto libre escrita a mano (ej. "remera polo azul 4" en
+    /// indumentaria, "tornillo autorroscante acero 50" en otro rubro) y devuelve una lista de
+    /// renglones ya comparados contra el catálogo — para cuando llega mercadería sin una factura
+    /// formal. Igual que LeerFactura: solo sugiere, la persona confirma en Artículos.
     /// </summary>
     public class InterpretarListaProductosCommandHandler : IRequestHandler<InterpretarListaProductosCommand, BaseResponse<List<LineaTextoProductoDto>>>
     {
         private static string ConstruirPrompt(List<Caracteristica> catalogoCaracteristicas) =>
-            "El siguiente texto es una lista escrita a mano por el dueño de un negocio, " +
-            "describiendo productos que recibió. Devolveme ÚNICAMENTE un array " +
-            "JSON (sin texto antes ni después, sin bloque de código markdown) con UN elemento por " +
-            "cada variante, no uno por producto — cada elemento " +
-            "con exactamente estas claves: \"descripcion\" (string, el nombre del producto SIN sus " +
-            "atributos de variante ni la cantidad, ej. \"remera nike\"), \"caracteristicas\" " +
-            "(array — ver abajo), \"cantidad\" (número entero — si no se menciona ninguna " +
-            "cantidad, asumí 1). " +
+            "El siguiente texto es una lista escrita a mano por el dueño de un negocio (puede ser " +
+            "de cualquier rubro: indumentaria, ferretería, farmacia, kiosco, etc.), describiendo " +
+            "productos que recibió. Devolveme ÚNICAMENTE un array JSON (sin texto antes ni " +
+            "después, sin bloque de código markdown) con UN elemento por cada variante, no uno " +
+            "por producto — cada elemento con exactamente estas claves: \"descripcion\" (string, " +
+            "el nombre del producto SIN sus atributos de variante ni la cantidad, tal como lo " +
+            "llamaría este negocio en particular — ej. \"remera nike\" en indumentaria, " +
+            "\"tornillo autorroscante\" en ferretería, \"ibuprofeno 400mg\" en farmacia), " +
+            "\"caracteristicas\" (array — ver abajo), \"cantidad\" (número entero — si no se " +
+            "menciona ninguna cantidad, asumí 1). " +
             IaHelpers.DescribirCaracteristicasParaPrompt(catalogoCaracteristicas) +
             " Un caso MUY común: el nombre del producto se escribe una sola vez, seguido de " +
             "varias líneas o frases separadas por coma que son puros atributos/cantidades de ESE " +
-            "MISMO producto (ej. \"Remera Nike talla L color azul stock 4, talla M color blanco " +
-            "stock 3, talla XXL color azul stock 3\" son 3 variantes de \"Remera Nike\", no 3 " +
-            "productos distintos ni productos sin nombre) — en ese caso repetí la MISMA " +
-            "descripción en las 3, nunca la dejes en blanco ni inventes un nombre distinto. " +
-            "\"stock\" en el texto significa lo mismo que \"cantidad\". Texto a interpretar:\n\n";
+            "MISMO producto — por ejemplo, en indumentaria \"Remera Nike talla L color azul stock " +
+            "4, talla M color blanco stock 3, talla XXL color azul stock 3\" son 3 variantes de " +
+            "\"Remera Nike\"; en otro rubro podría ser \"Tornillo autorroscante material acero " +
+            "stock 50, material acero galvanizado stock 30\", 2 variantes de \"Tornillo " +
+            "autorroscante\" — nunca son productos distintos ni productos sin nombre. En ese caso " +
+            "repetí la MISMA descripción en todas, nunca la dejes en blanco ni inventes un nombre " +
+            "distinto. \"stock\" en el texto significa lo mismo que \"cantidad\". Texto a " +
+            "interpretar:\n\n";
 
         private readonly IRepository<ConfiguracionEmpresa> _configuracionRepository;
         private readonly IRepository<Caracteristica> _caracteristicaRepository;

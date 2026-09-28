@@ -21,8 +21,10 @@ namespace Application.UseCase.IaOperation.Command.LeerFactura
             "producto/línea de la factura y devolveme ÚNICAMENTE un array JSON (sin texto antes " +
             "ni después, sin bloque de código markdown), donde cada elemento tenga exactamente " +
             "estas claves: \"descripcion\" (string, el nombre del producto SIN sus atributos de " +
-            "variante, ej. \"remera polo\" — si la factura no los separa del nombre, dejá la " +
-            "descripción completa acá y \"caracteristicas\" vacío), \"caracteristicas\" (array — " +
+            "variante, tal como lo llamaría este negocio en particular — ej. \"remera polo\" en " +
+            "indumentaria, \"tornillo autorroscante\" en ferretería, \"ibuprofeno 400mg\" en " +
+            "farmacia — si la factura no los separa del nombre, dejá la descripción completa acá " +
+            "y \"caracteristicas\" vacío), \"caracteristicas\" (array — " +
             "ver abajo), \"cantidad\" (número entero), \"costoUnitario\" (número, el costo de UNA " +
             "unidad — si la factura solo trae el subtotal de la línea, dividí por la cantidad). " +
             IaHelpers.DescribirCaracteristicasParaPrompt(catalogoCaracteristicas) + " Si no podés " +
