@@ -25,6 +25,14 @@ until sql -Q "SELECT 1" > /dev/null 2>&1; do
 done
 echo "[db-init] SQL Server listo."
 
+echo "[db-init] Tope de memoria de SQL Server: ${SQL_MAX_MEMORY_MB} MB..."
+# Sin tope, SQL Server agarra casi toda la RAM y deja sin aire a la API en un droplet
+# chico. Se aplica en cada arranque, así cambiar SQL_MAX_MEMORY_MB en el .env alcanza.
+sql -Q "
+EXEC sp_configure 'show advanced options', 1; RECONFIGURE;
+EXEC sp_configure 'max server memory (MB)', ${SQL_MAX_MEMORY_MB}; RECONFIGURE;
+" > /dev/null
+
 EXISTE=$(sql -h -1 -Q "SET NOCOUNT ON; SELECT COUNT(*) FROM sys.databases WHERE name = 'VentSoft'" | tr -d '[:space:]')
 
 if [ "$EXISTE" = "0" ]; then

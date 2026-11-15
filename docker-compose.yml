@@ -1,7 +1,7 @@
 # Levanta VentSoft completo: base de datos, API y frontend.
 #
 # Requisito: este archivo vive en la raíz del repo VentSoft-Backend, y el servicio
-# "frontend" construye desde "../FVentSoft" — o sea, hace falta tener el repo
+# "frontend" construye desde "../VentSoft-FrontEnd" — o sea, hace falta tener el repo
 # VentSoft-FrontEnd clonado JUSTO AL LADO de este (mismo directorio padre), no adentro:
 #   algún-directorio/
 #     ├── VentSoft-Backend/   (este repo — acá corrés docker compose)
@@ -12,9 +12,10 @@
 #      (incluido SITE_DOMAIN — ver abajo cómo conseguirlo gratis sin dominio propio).
 #   2. docker compose up -d --build
 #   3. Frontend:  https://<SITE_DOMAIN>          (certificado real, automático, gratis)
-#      API/Swagger: http://localhost:5187/swagger (solo accesible en el propio servidor
-#      o abriendo el puerto 5187, no pasa por HTTPS)
-#      SQL Server: localhost,1433 (para conectarte con SSMS/Azure Data Studio)
+#      API/Swagger: http://localhost:5187/swagger (solo desde el propio servidor: el
+#      puerto está atado a 127.0.0.1, no se publica a internet)
+#      SQL Server: localhost,1433 (solo desde el propio servidor, ídem; desde tu PC
+#      se entra con un túnel SSH: ssh -L 1433:localhost:1433 root@<ip>)
 #
 # SITE_DOMAIN sin comprar un dominio: si tu servidor tiene la IP pública 1.2.3.4, usá
 # "1-2-3-4.sslip.io" (con guiones en vez de puntos) — es un servicio gratis que resuelve
@@ -32,11 +33,22 @@ services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: ventsoft-db
+    # Si el servidor se reinicia o el proceso se cae (ej. falta de memoria), Docker lo
+    # vuelve a levantar solo. Sin esto, tras un reinicio del droplet todo queda apagado
+    # hasta que alguien entre a correr "docker compose up -d" a mano.
+    restart: unless-stopped
     environment:
       ACCEPT_EULA: "Y"
       MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
+      # Express: gratis y con licencia para uso comercial (Developer, el default si no
+      # se indica nada, NO se puede usar en un negocio real). Límites de Express (10 GB
+      # por base, ~1.4 GB de RAM) le sobran a un negocio chico.
+      MSSQL_PID: Express
+    # Atado a 127.0.0.1 a propósito: Docker publica los puertos saltándose el firewall
+    # (UFW), así que "1433:1433" dejaba la base expuesta a internet aunque UFW dijera
+    # que estaba cerrado. Así solo se llega desde el propio servidor (o por túnel SSH).
     ports:
-      - "1433:1433"
+      - "127.0.0.1:1433:1433"
     volumes:
       - sqlserver-data:/var/opt/mssql
     healthcheck:
@@ -58,6 +70,9 @@ services:
         condition: service_healthy
     environment:
       MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
+      # Tope de RAM para SQL Server (ver init-db.sh). 1024 pensado para un droplet de
+      # 2 GB; en uno más grande se puede subir desde el .env.
+      SQL_MAX_MEMORY_MB: ${SQL_MAX_MEMORY_MB:-1024}
       APP_DB_USER: ${APP_DB_USER}
       APP_DB_PASSWORD: ${APP_DB_PASSWORD}
     entrypoint: ["/bin/bash", "/scripts/init-db.sh"]
@@ -71,6 +86,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: ventsoft-api
+    restart: unless-stopped
     depends_on:
       db-init:
         condition: service_completed_successfully
@@ -89,8 +105,10 @@ services:
       Jwt__ExpireMinutes: "480"
       Encryption__Key: ${ENCRYPTION_KEY}
       Cors__AllowedOrigins__0: "https://${SITE_DOMAIN}"
+    # Solo desde el propio servidor (ver el comentario de "sqlserver"): el navegador
+    # nunca habla directo con la API, entra por Caddy -> frontend -> /api.
     ports:
-      - "5187:8080"
+      - "127.0.0.1:5187:8080"
     networks: [ventsoft]
 
   frontend:
@@ -100,6 +118,7 @@ services:
       args:
         VITE_API_URL: /api
     container_name: ventsoft-front
+    restart: unless-stopped
     depends_on:
       - backend
     networks: [ventsoft]
@@ -113,6 +132,7 @@ services:
   caddy:
     image: caddy:2-alpine
     container_name: ventsoft-caddy
+    restart: unless-stopped
     depends_on:
       - frontend
     environment:
