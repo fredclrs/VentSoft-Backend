@@ -90,12 +90,23 @@ EOF
 fi
 DOMINIO=$(grep '^SITE_DOMAIN=' "$DIR_BACK/.env" | cut -d= -f2-)
 
-paso "5/8 Firewall"
+paso "5/8 Firewall y SSH"
+# SSH también por el 2222: algunos proveedores de internet (el de Fredy, por ejemplo)
+# bloquean el 22 saliente, y sin esto no se puede administrar el servidor desde ahí.
+# Se entra con: ssh -p 2222 root@<ip>
+mkdir -p /etc/ssh/sshd_config.d
+printf 'Port 22\nPort 2222\n' > /etc/ssh/sshd_config.d/ventsoft-puertos.conf
+# Ubuntu 24.04 escucha SSH vía ssh.socket (los puertos salen de sshd_config al
+# recargar systemd); versiones anteriores usan ssh.service directo.
+systemctl daemon-reload
+if systemctl is-active --quiet ssh.socket; then systemctl restart ssh.socket; fi
+systemctl restart ssh 2> /dev/null || systemctl restart sshd
 ufw allow OpenSSH > /dev/null
+ufw allow 2222/tcp > /dev/null
 ufw allow 80/tcp > /dev/null
 ufw allow 443/tcp > /dev/null
 ufw --force enable > /dev/null
-echo "Abiertos: 22 (SSH), 80 y 443 (web). Todo lo demás cerrado."
+echo "Abiertos: 22 y 2222 (SSH), 80 y 443 (web). Todo lo demás cerrado."
 
 paso "6/8 Levantando VentSoft (la primera vez tarda varios minutos)"
 cd "$DIR_BACK"
@@ -153,4 +164,5 @@ echo
 echo " Comandos:   ventsoft-estado | ventsoft-reiniciar"
 echo "             ventsoft-actualizar | ventsoft-backup"
 echo " Claves:     guardadas en $DIR_BACK/.env (copialas a un lugar seguro)"
+echo " Entrar:     ssh -p 2222 root@<ip>   (si tu red bloquea el puerto 22)"
 echo "=============================================================="
