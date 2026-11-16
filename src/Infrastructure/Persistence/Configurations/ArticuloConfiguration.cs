@@ -12,6 +12,7 @@ namespace Infrastructure.Persistence.Configurations
             builder.ConfigureAudit();
 
             builder.Property(x => x.Codigo).HasMaxLength(40).IsRequired();
+            builder.Property(x => x.CodigoPaquete).HasMaxLength(40);
             builder.Property(x => x.Descripcion).HasMaxLength(100);
             builder.Property(x => x.Tamano).HasMaxLength(20).IsRequired();
             builder.Property(x => x.UnidadMedida).HasMaxLength(20);

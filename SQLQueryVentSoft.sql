@@ -29,6 +29,7 @@ go
 create table Articulo (
     Id int identity(1,1) primary key not null,
     Codigo varchar(40) not null,
+    CodigoPaquete varchar(40) null,
     Descripcion varchar(100) null,
     Tamano varchar(20) not null,
     UnidadMedida varchar(20) null,
@@ -151,6 +152,8 @@ go
 
 -- Si la base ya existía de antes (ya habías corrido este script una vez) y le faltan estas
 -- columnas, corré la que corresponda para agregarla sin perder los datos de la tabla:
+-- alter table Articulo add CodigoPaquete varchar(40) null;
+-- go
 -- alter table ConfiguracionEmpresa add PermiteCompraACredito bit default ((1)) not null;
 -- go
 -- alter table ConfiguracionEmpresa add RedondearPreciosEnteros bit default ((0)) not null;

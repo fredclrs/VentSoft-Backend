@@ -43,6 +43,9 @@ else
   echo "[db-init] La base VentSoft ya existe, no se vuelve a crear (los datos se conservan)."
 fi
 
+echo "[db-init] Aplicando cambios de esquema pendientes (migraciones.sql)..."
+sql -d VentSoft -b -i /scripts/migraciones.sql
+
 echo "[db-init] Asegurando el login '$APP_DB_USER' para la API..."
 sql -Q "
 IF NOT EXISTS (SELECT 1 FROM sys.sql_logins WHERE name = '$APP_DB_USER')

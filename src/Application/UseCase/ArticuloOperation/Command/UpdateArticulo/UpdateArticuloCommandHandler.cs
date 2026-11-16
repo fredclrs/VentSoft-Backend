@@ -1,3 +1,4 @@
+using Application.Common;
 using Application.Interfaces;
 using Application.Interfaces.Repositories;
 using AutoMapper;
@@ -85,7 +86,12 @@ namespace Application.UseCase.ArticuloOperation.Command.UpdateArticulo
                     }
                 }
 
+                var errorCodigoPaquete = await CodigoPaqueteHelpers.ValidarAsync(_repository, request.ArticuloDto, articulo.Id);
+                if (errorCodigoPaquete != null)
+                    return BaseResponse<ArticuloDto>.FailureResponse(errorCodigoPaquete);
+
                 _mapper.Map(request.ArticuloDto, articulo);
+                articulo.CodigoPaquete = string.IsNullOrWhiteSpace(articulo.CodigoPaquete) ? null : articulo.CodigoPaquete.Trim();
                 articulo.UserActualizado = "system"; // TODO: usuario autenticado real
                 articulo.FechaActualizado = DateTime.Now;
 

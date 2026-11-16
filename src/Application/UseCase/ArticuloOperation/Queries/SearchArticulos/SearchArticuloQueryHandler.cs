@@ -26,7 +26,9 @@ namespace Application.UseCase.ArticuloOperation.Queries.SearchArticulos
                 var articulos = (await _repository.GetAllWithCaracteristicasAsync()).AsEnumerable();
 
                 if (!string.IsNullOrWhiteSpace(request.Codigo))
-                    articulos = articulos.Where(a => a.Codigo.Contains(request.Codigo, StringComparison.OrdinalIgnoreCase));
+                    articulos = articulos.Where(a =>
+                        a.Codigo.Contains(request.Codigo, StringComparison.OrdinalIgnoreCase) ||
+                        (a.CodigoPaquete != null && a.CodigoPaquete.Contains(request.Codigo, StringComparison.OrdinalIgnoreCase)));
 
                 if (!string.IsNullOrWhiteSpace(request.Descripcion))
                     articulos = articulos.Where(a => a.Descripcion != null && a.Descripcion.Contains(request.Descripcion, StringComparison.OrdinalIgnoreCase));

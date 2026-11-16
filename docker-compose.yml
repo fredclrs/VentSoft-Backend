@@ -79,6 +79,7 @@ services:
     volumes:
       - ./SQLQueryVentSoft.sql:/scripts/SQLQueryVentSoft.sql:ro
       - ./docker/db-init/init-db.sh:/scripts/init-db.sh:ro
+      - ./docker/db-init/migraciones.sql:/scripts/migraciones.sql:ro
     networks: [ventsoft]
 
   backend:

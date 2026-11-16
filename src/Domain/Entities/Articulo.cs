@@ -5,6 +5,13 @@ namespace Domain.Entities
     public class Articulo : AuditEntity
     {
         public string Codigo { get; set; } = null!;
+
+        /// <summary>Código de barras impreso en la CAJA/paquete cerrado, distinto del de la unidad
+        /// (almacén: el paquete de fideos tiene uno y la caja de 20 otro). Opcional, solo tiene
+        /// sentido con Fraccion > 1. Si está cargado, escanear Codigo vende 1 unidad suelta y
+        /// escanear CodigoPaquete vende la caja entera; si es null, escanear Codigo vende el
+        /// paquete como siempre (caso ropa: el código está impreso en el paquete).</summary>
+        public string? CodigoPaquete { get; set; }
         public string? Descripcion { get; set; }
         public string Tamano { get; set; } = null!;
         public string? UnidadMedida { get; set; }

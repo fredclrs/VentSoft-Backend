@@ -13,6 +13,14 @@ namespace Application.Validators
             RuleFor(a => a.Precio).GreaterThanOrEqualTo(0).WithMessage("El precio no puede ser negativo.");
             RuleFor(a => a.Costo).GreaterThanOrEqualTo(0).WithMessage("El costo no puede ser negativo.");
             RuleFor(a => a.Fraccion).GreaterThanOrEqualTo(1).WithMessage("Las unidades por caja deben ser 1 o más.");
+            RuleFor(a => a.CodigoPaquete)
+                .MaximumLength(40).WithMessage("El código de la caja no puede tener más de 40 caracteres.")
+                .Must((a, codigoPaquete) => !string.Equals(codigoPaquete?.Trim(), a.Codigo?.Trim(), StringComparison.OrdinalIgnoreCase))
+                .WithMessage("El código de la caja tiene que ser distinto del código de la unidad.")
+                .When(a => !string.IsNullOrWhiteSpace(a.CodigoPaquete));
+            RuleFor(a => a.Fraccion)
+                .GreaterThan(1).When(a => !string.IsNullOrWhiteSpace(a.CodigoPaquete))
+                .WithMessage("Para cargar el código de la caja, 'Unidades por paquete' tiene que ser mayor a 1.");
             RuleFor(a => a.PrecioUnidadSuelta)
                 .GreaterThanOrEqualTo(0).When(a => a.PrecioUnidadSuelta.HasValue)
                 .WithMessage("El precio por unidad suelta no puede ser negativo.");

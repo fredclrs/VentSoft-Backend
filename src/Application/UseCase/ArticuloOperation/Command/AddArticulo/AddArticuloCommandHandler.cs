@@ -1,3 +1,4 @@
+using Application.Common;
 using Application.Interfaces;
 using Application.Interfaces.Repositories;
 using AutoMapper;
@@ -70,7 +71,12 @@ namespace Application.UseCase.ArticuloOperation.Command.AddArticulo
                     }
                 }
 
+                var errorCodigoPaquete = await CodigoPaqueteHelpers.ValidarAsync(_repository, request.ArticuloDto, null);
+                if (errorCodigoPaquete != null)
+                    return BaseResponse<ArticuloDto>.FailureResponse(errorCodigoPaquete);
+
                 var articulo = _mapper.Map<Articulo>(request.ArticuloDto);
+                articulo.CodigoPaquete = string.IsNullOrWhiteSpace(articulo.CodigoPaquete) ? null : articulo.CodigoPaquete.Trim();
                 articulo.Estado = "AC";
                 articulo.FechaRegistro = DateTime.Now;
 

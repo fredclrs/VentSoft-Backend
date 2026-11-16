@@ -4,6 +4,7 @@ namespace Domain.Dtos
     {
         public int Id { get; set; }
         public string Codigo { get; set; } = null!;
+        public string? CodigoPaquete { get; set; }
         public string? Descripcion { get; set; }
         public string Tamano { get; set; } = null!;
         public string? UnidadMedida { get; set; }
