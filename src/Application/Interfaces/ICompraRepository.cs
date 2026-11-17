@@ -14,4 +14,7 @@ public interface ICompraRepository : IRepository<Compra>
     /// ver el historial completo de lotes de un artículo puntual, sin importar cuándo vence).
     /// idArticulo es opcional, para acotar a un solo artículo.</summary>
     Task<List<DetalleCompra>> GetLotesPorVencerAsync(int? diasAnticipacion, int? idArticulo);
+
+    /// <summary>Un renglón de compra suelto (para corregirle Lote/FechaVencimiento después).</summary>
+    Task<DetalleCompra?> GetDetalleByIdAsync(int idDetalleCompra);
 }

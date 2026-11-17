@@ -1,4 +1,5 @@
 using Application;
+using Application.UseCase.CompraOperation.Command.ActualizarLoteDetalle;
 using Application.UseCase.CompraOperation.Command.RegistrarCompra;
 using Application.UseCase.CompraOperation.Queries.GetCompraById;
 using Application.UseCase.CompraOperation.Queries.GetComprasByProveedor;
@@ -31,6 +32,18 @@ namespace WebVentSoft.API.Controllers
         public async Task<IActionResult> RegistrarCompra([FromBody] RegistrarCompraDto compraDto)
         {
             var response = await _mediator.Send(new RegistrarCompraCommand { CompraDto = compraDto });
+            return response.Success ? Ok(response) : BadRequest(response);
+        }
+
+        /// <summary>Carga o corrige el Lote/Fecha de vencimiento de un renglón de una compra ya
+        /// registrada. No toca cantidades, costos, stock ni pagos.</summary>
+        [HttpPut("detalle/lote")]
+        [Authorize(Roles = Permisos.Compras)]
+        [ProducesResponseType(typeof(BaseResponse<DetalleCompraDto>), 200)]
+        [ProducesResponseType(typeof(BaseResponse<DetalleCompraDto>), 400)]
+        public async Task<IActionResult> ActualizarLoteDetalle([FromBody] ActualizarLoteDetalleCommand command)
+        {
+            var response = await _mediator.Send(command);
             return response.Success ? Ok(response) : BadRequest(response);
         }
 

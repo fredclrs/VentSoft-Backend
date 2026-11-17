@@ -19,6 +19,11 @@ namespace Infrastructure.Repositories
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
+        public async Task<DetalleCompra?> GetDetalleByIdAsync(int idDetalleCompra)
+        {
+            return await _context.DetalleCompras.FirstOrDefaultAsync(x => x.Id == idDetalleCompra);
+        }
+
         public async Task<List<Compra>> GetByProveedorAsync(int idProveedor)
         {
             return await _context.Compras
