@@ -38,7 +38,8 @@ namespace Infrastructure.Repositories
             var query = _context.DetalleCompras
                 .Include(x => x.Articulo)
                 .Include(x => x.Compra)
-                .Where(x => x.Lote != null || x.FechaVencimiento != null);
+                // Los lotes de una compra anulada nunca entraron de verdad: no se avisan.
+                .Where(x => (x.Lote != null || x.FechaVencimiento != null) && x.Compra.Estado != "AN");
 
             if (idArticulo.HasValue)
                 query = query.Where(x => x.IdArticulo == idArticulo.Value);

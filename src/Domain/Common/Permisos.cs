@@ -32,11 +32,16 @@ namespace Domain.Common
         /// eso es un permiso aparte del de Ventas (uno puede vender sin poder ver esto).</summary>
         public const string VentasPorVendedor = "ventas_vendedor";
 
+        /// <summary>Anular ventas y compras ya registradas (error de caja, compra cargada dos veces).
+        /// Aparte de Ventas/Compras a propósito: anular una venta cobrada en efectivo es la forma
+        /// típica de sacar plata de la caja, así que solo lo hace quien el dueño elija.</summary>
+        public const string Anular = "anular";
+
         public static readonly string[] Todos =
         {
             Ventas, Compras, Cobros, Pagos, CuentasPorCobrar, CuentasPorPagar,
             Inventario, VentasDelDia, Usuarios, Configuracion, Entregas, Liquidaciones,
-            VentasPorVendedor,
+            VentasPorVendedor, Anular,
         };
     }
 }

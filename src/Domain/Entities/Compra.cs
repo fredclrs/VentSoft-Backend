@@ -11,6 +11,10 @@ namespace Domain.Entities
         public double PorPagar { get; set; }
         public string? Nota { get; set; }
 
+        /// <summary>Por qué se anuló (Estado = "AN"). Quién y cuándo quedan en UserBaja/FechaBaja.
+        /// Una compra anulada no cuenta para stock ni deuda — ver AnularCompraCommand.</summary>
+        public string? MotivoAnulacion { get; set; }
+
         public int IdUsuario { get; set; }
         public int IdProveedor { get; set; }
 

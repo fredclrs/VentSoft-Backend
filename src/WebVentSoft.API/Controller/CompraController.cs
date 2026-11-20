@@ -1,5 +1,6 @@
 using Application;
 using Application.UseCase.CompraOperation.Command.ActualizarLoteDetalle;
+using Application.UseCase.CompraOperation.Command.AnularCompra;
 using Application.UseCase.CompraOperation.Command.RegistrarCompra;
 using Application.UseCase.CompraOperation.Queries.GetCompraById;
 using Application.UseCase.CompraOperation.Queries.GetComprasByProveedor;
@@ -43,6 +44,20 @@ namespace WebVentSoft.API.Controllers
         [ProducesResponseType(typeof(BaseResponse<DetalleCompraDto>), 400)]
         public async Task<IActionResult> ActualizarLoteDetalle([FromBody] ActualizarLoteDetalleCommand command)
         {
+            var response = await _mediator.Send(command);
+            return response.Success ? Ok(response) : BadRequest(response);
+        }
+
+        /// <summary>Anula una compra registrada por error (queda guardada como "AN" con motivo,
+        /// quién y cuándo). Permiso propio: no alcanza con poder comprar.</summary>
+        [HttpPost("anular")]
+        [Authorize(Roles = Permisos.Anular)]
+        [ProducesResponseType(typeof(BaseResponse<CompraDto>), 200)]
+        [ProducesResponseType(typeof(BaseResponse<CompraDto>), 400)]
+        public async Task<IActionResult> Anular([FromBody] AnularCompraCommand command)
+        {
+            // Quién anula sale del token, no de lo que mande la pantalla.
+            command.Usuario = User.Identity?.Name ?? User.FindFirst("unique_name")?.Value;
             var response = await _mediator.Send(command);
             return response.Success ? Ok(response) : BadRequest(response);
         }

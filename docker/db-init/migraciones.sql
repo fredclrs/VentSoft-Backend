@@ -28,3 +28,11 @@ GO
 UPDATE Compra SET PorPagar = 0 WHERE PorPagar <> 0 AND ABS(PorPagar) < 0.01;
 UPDATE Venta SET PorPagar = 0 WHERE PorPagar <> 0 AND ABS(PorPagar) < 0.01;
 GO
+
+-- 20/11/2026: anular ventas y compras (Estado = "AN"), con el motivo. Ver AnularVentaCommand.
+IF COL_LENGTH('Venta', 'MotivoAnulacion') IS NULL
+    ALTER TABLE Venta ADD MotivoAnulacion varchar(200) NULL;
+GO
+IF COL_LENGTH('Compra', 'MotivoAnulacion') IS NULL
+    ALTER TABLE Compra ADD MotivoAnulacion varchar(200) NULL;
+GO

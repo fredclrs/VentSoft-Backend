@@ -15,12 +15,14 @@ namespace Infrastructure.Services
 
         public async Task<int> GetStockActualAsync(int idArticulo)
         {
+            // Compras y ventas anuladas (Estado "AN") no mueven stock: es lo que hace que anular
+            // devuelva/saque la mercadería sin tocar ningún renglón.
             var comprado = await _context.DetalleCompras
-                .Where(x => x.IdArticulo == idArticulo)
+                .Where(x => x.IdArticulo == idArticulo && x.Compra.Estado != "AN")
                 .SumAsync(x => x.Cantidad);
 
             var vendido = await _context.DetalleVentas
-                .Where(x => x.IdArticulo == idArticulo)
+                .Where(x => x.IdArticulo == idArticulo && x.Venta.Estado != "AN")
                 .SumAsync(x => x.Cantidad);
 
             // Lo devuelto (y marcado como vendible) vuelve a sumar al stock; lo entregado
@@ -55,11 +57,13 @@ namespace Infrastructure.Services
         public async Task<Dictionary<int, int>> GetStockPorArticuloAsync()
         {
             var comprado = await _context.DetalleCompras
+                .Where(x => x.Compra.Estado != "AN")
                 .GroupBy(x => x.IdArticulo)
                 .Select(g => new { g.Key, Cantidad = g.Sum(x => x.Cantidad) })
                 .ToDictionaryAsync(x => x.Key, x => x.Cantidad);
 
             var vendido = await _context.DetalleVentas
+                .Where(x => x.Venta.Estado != "AN")
                 .GroupBy(x => x.IdArticulo)
                 .Select(g => new { g.Key, Cantidad = g.Sum(x => x.Cantidad) })
                 .ToDictionaryAsync(x => x.Key, x => x.Cantidad);

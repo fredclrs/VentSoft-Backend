@@ -18,6 +18,11 @@ namespace Domain.Dtos
         public double Pagado { get; set; }
         public double PorPagar { get; set; }
         public string? Nota { get; set; }
+
+        /// <summary>Solo en anuladas (Estado = "AN"): motivo, quién y cuándo.</summary>
+        public string? MotivoAnulacion { get; set; }
+        public string? UserBaja { get; set; }
+        public DateTime? FechaBaja { get; set; }
         public double MontoSaldoAFavorAplicado { get; set; }
         public string Estado { get; set; } = null!;
 

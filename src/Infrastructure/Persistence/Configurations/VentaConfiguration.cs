@@ -13,6 +13,7 @@ namespace Infrastructure.Persistence.Configurations
 
             builder.Property(x => x.Referencias).HasMaxLength(100);
             builder.Property(x => x.Nota).HasMaxLength(150);
+            builder.Property(x => x.MotivoAnulacion).HasMaxLength(200);
 
             builder.HasOne(x => x.Cliente)
                 .WithMany(x => x.Ventas)

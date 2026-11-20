@@ -20,6 +20,10 @@ namespace Domain.Entities
         public double PorPagar { get; set; }
         public string? Nota { get; set; }
 
+        /// <summary>Por qué se anuló (Estado = "AN"). Quién y cuándo quedan en UserBaja/FechaBaja.
+        /// Una venta anulada no cuenta para stock, totales ni deuda — ver AnularVentaCommand.</summary>
+        public string? MotivoAnulacion { get; set; }
+
         /// <summary>Cuánto de lo Pagado vino del SaldoAFavor del cliente (crédito por una
         /// devolución/cambio anterior) en vez de efectivo — solo para trazabilidad/impresión.</summary>
         public double MontoSaldoAFavorAplicado { get; set; }
