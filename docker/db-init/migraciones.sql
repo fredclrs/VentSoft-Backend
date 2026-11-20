@@ -21,3 +21,10 @@ GO
 IF COL_LENGTH('Promocion', 'EsPrecioPorMayor') IS NULL
     ALTER TABLE Promocion ADD EsPrecioPorMayor bit NOT NULL DEFAULT 0;
 GO
+
+-- 20/11/2026: deudas de fracciones de centavo (ej. 1000 / 12 por paquete) que mostraban
+-- "Debe $ 0,00" en compras/ventas pagadas completas. Desde ahora se redondea al registrar;
+-- esto limpia las que ya estaban. Correrlo de nuevo no cambia nada.
+UPDATE Compra SET PorPagar = 0 WHERE PorPagar <> 0 AND ABS(PorPagar) < 0.01;
+UPDATE Venta SET PorPagar = 0 WHERE PorPagar <> 0 AND ABS(PorPagar) < 0.01;
+GO

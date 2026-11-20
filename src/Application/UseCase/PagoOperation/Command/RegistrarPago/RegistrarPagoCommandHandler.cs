@@ -56,7 +56,7 @@ namespace Application.UseCase.PagoOperation.Command.RegistrarPago
 
                     var aplicado = Math.Min(compra.PorPagar, restante);
                     compra.Pagado += aplicado;
-                    compra.PorPagar -= aplicado;
+                    compra.PorPagar = Math.Round(compra.PorPagar - aplicado, 2);
                     compra.UserActualizado = "system";
                     compra.FechaActualizado = DateTime.Now;
                     _compraRepository.Update(compra);

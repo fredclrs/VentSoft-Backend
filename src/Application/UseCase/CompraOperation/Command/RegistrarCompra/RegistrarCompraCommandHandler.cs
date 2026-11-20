@@ -164,9 +164,11 @@ namespace Application.UseCase.CompraOperation.Command.RegistrarCompra
                     _articuloRepository.Update(articulo);
                 }
 
-                compra.Total = total;
+                compra.Total = Math.Round(total, 2);
                 compra.Pagado = dto.Pagado;
-                compra.PorPagar = total - dto.Pagado;
+                // Redondeado a centavos: el costo por unidad de un paquete (ej. 1000 / 12) deja decimales
+                // infinitos, y sin redondear quedaba "Debe $ 0,00" en compras pagadas completas.
+                compra.PorPagar = Math.Round(compra.Total - dto.Pagado, 2);
 
                 await _compraRepository.AddAsync(compra);
                 // Una sola llamada a SaveChangesAsync: persiste la Compra + Detalles y los Articulo

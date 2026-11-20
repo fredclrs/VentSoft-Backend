@@ -138,9 +138,11 @@ namespace Application.UseCase.VentaOperation.Command.RegistrarVenta
                 var total = totalConDescuento * (1 + (dto.RecargoPorcentaje ?? 0) / 100.0);
 
                 venta.RecargoPorcentaje = dto.RecargoPorcentaje;
-                venta.Total = total;
+                venta.Total = Math.Round(total, 2);
                 venta.Pagado = dto.Pagado;
-                venta.PorPagar = total - dto.Pagado;
+                // Redondeado a centavos (recargos, promos y paquetes dejan decimales infinitos): sin esto
+                // quedaba "Debe $ 0,00" en ventas pagadas completas.
+                venta.PorPagar = Math.Round(venta.Total - dto.Pagado, 2);
 
                 // Saldo a favor del cliente (por una devolución/cambio anterior): opcional, se aplica
                 // como un pago más, tope al saldo disponible y a lo que todavía falta pagar.
@@ -160,7 +162,7 @@ namespace Application.UseCase.VentaOperation.Command.RegistrarVenta
 
                         venta.MontoSaldoAFavorAplicado = montoAplicado;
                         venta.Pagado += montoAplicado;
-                        venta.PorPagar -= montoAplicado;
+                        venta.PorPagar = Math.Round(venta.PorPagar - montoAplicado, 2);
                     }
                 }
 

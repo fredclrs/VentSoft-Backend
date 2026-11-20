@@ -87,7 +87,7 @@ namespace Application.UseCase.LiquidacionOperation.Command.RegistrarLiquidacion
 
                     var aplicado = Math.Min(venta.PorPagar, restante);
                     venta.Pagado += aplicado;
-                    venta.PorPagar -= aplicado;
+                    venta.PorPagar = Math.Round(venta.PorPagar - aplicado, 2);
                     venta.UserActualizado = "system";
                     venta.FechaActualizado = DateTime.Now;
                     _ventaRepository.Update(venta);

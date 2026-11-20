@@ -157,7 +157,7 @@ namespace Application.UseCase.DevolucionOperation.Command.RegistrarDevolucion
                 var porPagarBruto = venta.Total - venta.Pagado;
                 var sobrante = porPagarBruto < 0 ? -porPagarBruto : 0;
                 var nuevaDeuda = porPagarBruto < 0 ? 0 : porPagarBruto;
-                venta.PorPagar = nuevaDeuda;
+                venta.PorPagar = Math.Round(nuevaDeuda, 2);
 
                 // Solo informativo (para el registro/impresión): cuánto del valor devuelto sirvió
                 // para cancelar deuda que la venta ya tenía pendiente.
@@ -178,7 +178,7 @@ namespace Application.UseCase.DevolucionOperation.Command.RegistrarDevolucion
                     if (montoCobradoAhora > 0)
                     {
                         venta.Pagado += montoCobradoAhora;
-                        venta.PorPagar -= montoCobradoAhora;
+                        venta.PorPagar = Math.Round(venta.PorPagar - montoCobradoAhora, 2);
                     }
                     porPagarDevolucion = extraAPagar - montoCobradoAhora;
                 }
