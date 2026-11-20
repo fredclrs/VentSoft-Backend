@@ -410,6 +410,8 @@ create table Promocion (
     DescuentoMonetario money null,
     DescuentoProcentaje float null,
     Descripcion varchar(150) null,
+    CantidadPromo int null,
+    PrecioPromo money null,
     Estado char(2) not null,
     UserRegistro varchar(30) null,
     UserActualizado varchar(30) null,

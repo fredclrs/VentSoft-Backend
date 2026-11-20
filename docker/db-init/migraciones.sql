@@ -10,3 +10,11 @@
 IF COL_LENGTH('Articulo', 'CodigoPaquete') IS NULL
     ALTER TABLE Articulo ADD CodigoPaquete varchar(40) NULL;
 GO
+
+-- 19/11/2026: promociones "N por $X" (ej. Chicle 2x500), ver Promocion.CantidadPromo.
+IF COL_LENGTH('Promocion', 'CantidadPromo') IS NULL
+    ALTER TABLE Promocion ADD CantidadPromo int NULL;
+GO
+IF COL_LENGTH('Promocion', 'PrecioPromo') IS NULL
+    ALTER TABLE Promocion ADD PrecioPromo money NULL;
+GO

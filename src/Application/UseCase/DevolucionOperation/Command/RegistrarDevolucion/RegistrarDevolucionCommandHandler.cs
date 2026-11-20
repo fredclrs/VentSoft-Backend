@@ -91,7 +91,13 @@ namespace Application.UseCase.DevolucionOperation.Command.RegistrarDevolucion
                         return BaseResponse<DevolucionVentaDto>.FailureResponse(
                             $"No se puede devolver {d.Cantidad} unidad(es) del artículo '{detalleOriginal.Articulo?.Codigo}' — solo quedan {disponibleParaDevolver} disponibles para devolver de esa venta.");
 
-                    var subTotal = detalleOriginal.PrecioUnitario * d.Cantidad;
+                    // Se devuelve lo que realmente se cobró por unidad (SubTotal / Cantidad), no el
+                    // precio de lista: si el renglón tuvo descuento (ej. promoción 2x500), devolver
+                    // a precio de lista le daría al cliente más plata de la que pagó.
+                    var precioCobrado = detalleOriginal.Cantidad > 0
+                        ? detalleOriginal.SubTotal / detalleOriginal.Cantidad
+                        : detalleOriginal.PrecioUnitario;
+                    var subTotal = precioCobrado * d.Cantidad;
                     totalDevuelto += subTotal;
 
                     detallesDevueltos.Add(new DetalleDevolucionVenta
@@ -99,7 +105,7 @@ namespace Application.UseCase.DevolucionOperation.Command.RegistrarDevolucion
                         IdDetalleVenta = d.IdDetalleVenta,
                         IdArticulo = detalleOriginal.IdArticulo,
                         Cantidad = d.Cantidad,
-                        PrecioUnitario = detalleOriginal.PrecioUnitario,
+                        PrecioUnitario = precioCobrado,
                         SubTotal = subTotal,
                         Vendible = d.Vendible,
                     });

@@ -15,6 +15,7 @@ namespace Infrastructure.Persistence.Configurations
             builder.Property(x => x.DescuentoMonetario).HasColumnType("money");
             builder.Property(x => x.DescuentoPorcentaje).HasColumnName("DescuentoProcentaje");
             builder.Property(x => x.Descripcion).HasMaxLength(150);
+            builder.Property(x => x.PrecioPromo).HasColumnType("money");
         }
     }
 }

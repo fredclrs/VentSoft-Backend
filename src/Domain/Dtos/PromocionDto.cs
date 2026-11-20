@@ -7,6 +7,8 @@ namespace Domain.Dtos
         public decimal? DescuentoMonetario { get; set; }
         public double? DescuentoPorcentaje { get; set; }
         public string? Descripcion { get; set; }
+        public int? CantidadPromo { get; set; }
+        public decimal? PrecioPromo { get; set; }
         public string Estado { get; set; } = null!;
     }
 }
