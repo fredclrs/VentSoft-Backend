@@ -18,3 +18,6 @@ GO
 IF COL_LENGTH('Promocion', 'PrecioPromo') IS NULL
     ALTER TABLE Promocion ADD PrecioPromo money NULL;
 GO
+IF COL_LENGTH('Promocion', 'EsPrecioPorMayor') IS NULL
+    ALTER TABLE Promocion ADD EsPrecioPorMayor bit NOT NULL DEFAULT 0;
+GO

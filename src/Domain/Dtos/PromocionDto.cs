@@ -9,6 +9,7 @@ namespace Domain.Dtos
         public string? Descripcion { get; set; }
         public int? CantidadPromo { get; set; }
         public decimal? PrecioPromo { get; set; }
+        public bool EsPrecioPorMayor { get; set; }
         public string Estado { get; set; } = null!;
     }
 }

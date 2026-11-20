@@ -11,7 +11,7 @@ namespace Application.UseCase.PromocionOperation.Command.UpdatePromocion
                 .NotEmpty().WithMessage("El campo NombrePromocion es obligatorio.")
                 .When(x => x.PromocionDto != null);
 
-            // "N por $X": o se cargan la cantidad y el precio, o ninguno de los dos.
+            // Promoción por cantidad ("2x500" o precio por mayor): o se cargan la cantidad y el precio, o ninguno.
             RuleFor(x => x.PromocionDto.CantidadPromo)
                 .GreaterThanOrEqualTo(2).WithMessage("La cantidad de la promoción tiene que ser 2 o más.")
                 .When(x => x.PromocionDto != null && x.PromocionDto.CantidadPromo.HasValue);
@@ -20,7 +20,7 @@ namespace Application.UseCase.PromocionOperation.Command.UpdatePromocion
                 .When(x => x.PromocionDto != null && x.PromocionDto.PrecioPromo.HasValue);
             RuleFor(x => x.PromocionDto)
                 .Must(p => p.CantidadPromo.HasValue == p.PrecioPromo.HasValue)
-                .WithMessage("Para una promoción \"N por precio\" cargá la cantidad y el precio.")
+                .WithMessage("Para una promoción por cantidad cargá la cantidad y el precio.")
                 .When(x => x.PromocionDto != null);
         }
     }

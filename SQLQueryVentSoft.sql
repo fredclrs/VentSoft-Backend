@@ -412,6 +412,7 @@ create table Promocion (
     Descripcion varchar(150) null,
     CantidadPromo int null,
     PrecioPromo money null,
+    EsPrecioPorMayor bit default ((0)) not null,
     Estado char(2) not null,
     UserRegistro varchar(30) null,
     UserActualizado varchar(30) null,
