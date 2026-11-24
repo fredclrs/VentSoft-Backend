@@ -145,6 +145,7 @@ create table ConfiguracionEmpresa (
     PermiteCompraACredito bit default ((1)) not null,
     RedondearPreciosEnteros bit default ((0)) not null,
     PermiteCodigoCompartidoEntreArticulos bit default ((0)) not null,
+    FormatoTicket varchar(10) default ('ticket80') not null,
     ClaveApiIACifrada nvarchar(500) null,
     IdClientePorDefecto int null,
     IdProveedorPorDefecto int null

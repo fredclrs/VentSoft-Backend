@@ -9,6 +9,7 @@ namespace Domain.Dtos
         public bool PermiteCompraACredito { get; set; }
         public bool RedondearPreciosEnteros { get; set; }
         public bool PermiteCodigoCompartidoEntreArticulos { get; set; }
+        public string FormatoTicket { get; set; } = "ticket80";
 
         /// <summary>Si ya hay una API key de IA configurada — nunca se devuelve la clave en sí
         /// (ver ConfiguracionEmpresa.ClaveApiIACifrada), solo si existe o no, para que el

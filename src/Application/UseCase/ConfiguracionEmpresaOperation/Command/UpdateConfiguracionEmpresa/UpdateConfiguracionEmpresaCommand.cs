@@ -11,6 +11,7 @@ namespace Application.UseCase.ConfiguracionEmpresaOperation.Command.UpdateConfig
         public bool PermiteCompraACredito { get; set; } = true;
         public bool RedondearPreciosEnteros { get; set; } = false;
         public bool PermiteCodigoCompartidoEntreArticulos { get; set; } = false;
+        public string FormatoTicket { get; set; } = "ticket80";
 
         /// <summary>Solo si viene con un valor (no vacío): reemplaza la API key de IA guardada.
         /// Null = no se toca la que ya estaba configurada (el frontend nunca la muestra de vuelta,

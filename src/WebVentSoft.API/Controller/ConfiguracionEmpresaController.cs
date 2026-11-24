@@ -40,6 +40,7 @@ namespace WebVentSoft.API.Controllers
             public bool PermiteCompraACredito { get; set; } = true;
             public bool RedondearPreciosEnteros { get; set; } = false;
             public bool PermiteCodigoCompartidoEntreArticulos { get; set; } = false;
+            public string FormatoTicket { get; set; } = "ticket80";
             public string? ClaveApiIA { get; set; }
             public bool EliminarClaveApiIA { get; set; }
             public int? IdClientePorDefecto { get; set; }
@@ -63,6 +64,7 @@ namespace WebVentSoft.API.Controllers
                 PermiteCompraACredito = request.PermiteCompraACredito,
                 RedondearPreciosEnteros = request.RedondearPreciosEnteros,
                 PermiteCodigoCompartidoEntreArticulos = request.PermiteCodigoCompartidoEntreArticulos,
+                FormatoTicket = request.FormatoTicket,
                 ClaveApiIA = request.ClaveApiIA,
                 EliminarClaveApiIA = request.EliminarClaveApiIA,
                 IdClientePorDefecto = request.IdClientePorDefecto,

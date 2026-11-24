@@ -14,6 +14,10 @@ namespace Application.UseCase.ConfiguracionEmpresaOperation.Command.UpdateConfig
                 .NotEmpty().WithMessage("El símbolo de moneda es obligatorio.")
                 .MaximumLength(10).WithMessage("El símbolo de moneda no puede superar los 10 caracteres.");
 
+            RuleFor(x => x.FormatoTicket)
+                .Must(f => f == "ticket58" || f == "ticket80" || f == "hoja")
+                .WithMessage("El tamaño de papel del comprobante no es válido.");
+
             RuleFor(x => x.IdClientePorDefecto)
                 .GreaterThan(0).When(x => x.IdClientePorDefecto.HasValue)
                 .WithMessage("El cliente por defecto no es válido.");

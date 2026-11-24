@@ -48,6 +48,11 @@ namespace Domain.Entities
         /// de comportamiento.</summary>
         public bool PermiteCodigoCompartidoEntreArticulos { get; set; } = false;
 
+        /// <summary>Tamaño de papel del comprobante que imprime Ventas al vender: "ticket58"
+        /// (térmica chica, tipo POS-58), "ticket80" (térmica de súper) u "hoja" (A4/Carta).
+        /// Depende de la impresora que tenga el negocio.</summary>
+        public string FormatoTicket { get; set; } = "ticket80";
+
         /// <summary>API key de Anthropic (para las funciones de IA — leer facturas por foto,
         /// completar productos, etc.), cifrada en reposo con ICifradoService — nunca se guarda ni
         /// se devuelve en texto plano al frontend (ver TieneClaveApiIA en el Dto). Null = el

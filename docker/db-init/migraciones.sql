@@ -36,3 +36,9 @@ GO
 IF COL_LENGTH('Compra', 'MotivoAnulacion') IS NULL
     ALTER TABLE Compra ADD MotivoAnulacion varchar(200) NULL;
 GO
+
+-- 24/11/2026: tamaño de papel del comprobante que imprime Ventas ("ticket58", "ticket80" u
+-- "hoja"), elegido en Administración → Datos del negocio. Ver ConfiguracionEmpresa.FormatoTicket.
+IF COL_LENGTH('ConfiguracionEmpresa', 'FormatoTicket') IS NULL
+    ALTER TABLE ConfiguracionEmpresa ADD FormatoTicket varchar(10) NOT NULL DEFAULT ('ticket80');
+GO
