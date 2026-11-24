@@ -154,7 +154,9 @@ namespace Application.UseCase.CompraOperation.Command.RegistrarCompra
                                 IdArticulo = articulo.Id,
                                 Codigo = articulo.Codigo,
                                 PrecioActual = articulo.Precio,
-                                PrecioSugerido = precioSugerido
+                                PrecioSugerido = precioSugerido,
+                                CostoAnterior = costoAnterior,
+                                CostoNuevo = articulo.Costo
                             });
                         }
                     }

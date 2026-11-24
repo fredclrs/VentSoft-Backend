@@ -10,5 +10,10 @@ namespace Domain.Dtos
         public string Codigo { get; set; } = null!;
         public double PrecioActual { get; set; }
         public double PrecioSugerido { get; set; }
+
+        /// <summary>Costo por paquete antes y después de esta compra — para que se vea por qué
+        /// cambia el precio sugerido.</summary>
+        public double CostoAnterior { get; set; }
+        public double CostoNuevo { get; set; }
     }
 }
